@@ -19,7 +19,7 @@ app.get("/", (request,response ) =>{
 
 })
 
-// const db = knex(knexfile.development);
+const db = knex(knexfile.development);
 
 // // Run pending migrations
 // db.migrate.latest()
@@ -52,6 +52,30 @@ app.get("/", (request,response ) =>{
 //       response.status(500).json({ error: "Error fetching phones" });
 //     });
 // });
+
+app.get("api/phones", (request, response) => {
+  db.select()
+    .from("phones")
+    .then((data) => {
+      response.json(data);
+    })
+    .catch((error) => {
+      console.error(error);
+      response.status(500).json({ error: "Internal server error" });
+    });
+});
+
+app.get("/phones", (request, response) => {
+  db.select()
+    .from("phones")
+    .then((data) => {
+      response.json(data);
+    })
+    .catch((error) => {
+      console.error(error);
+      response.status(500).json({ error: "Internal server error" });
+    });
+});
 
 
 
