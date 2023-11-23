@@ -19,7 +19,7 @@ app.get("/", (request,response ) =>{
 
 })
 
-// const db = knex(knexfile.development);
+const db = knex(knexfile.development);
 
 // // Run pending migrations
 // db.migrate.latest()
