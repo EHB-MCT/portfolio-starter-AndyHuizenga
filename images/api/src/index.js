@@ -77,6 +77,8 @@ app.get("/phones", (request, response) => {
     });
 });
 
+
+
 // Update a phone by ID
 app.put("/api/phones/:id", (request, response) => {
   const { id } = request.params;
@@ -138,3 +140,14 @@ app.delete("/api/phones/:id", (request, response) => {
     });
 });
 
+app.get("/brands", (request, response) => {
+  db("phones_brands")
+    .select("*")
+    .then((brands) => {
+      response.json(brands);
+    })
+    .catch((error) => {
+      console.error(error);
+      response.status(500).json({ error: "Internal server error" });
+    });
+});
