@@ -19,7 +19,7 @@ app.get("/", (request,response ) =>{
 
 })
 
-const db = knex(knexfile.development);
+// const db = knex(knexfile.development);
 
 // // Run pending migrations
 // db.migrate.latest()
@@ -77,6 +77,27 @@ app.get("/phones", (request, response) => {
     });
 });
 
+// Update a phone by ID
+app.put("/api/phones/:id", (request, response) => {
+  const { id } = request.params;
+  const { name, brand } = request.body;
+
+  db("phones")
+    .where({ id })
+    .update({ name, brand })
+    .returning("*")
+    .then((updatedPhone) => {
+      if (updatedPhone.length === 0) {
+        response.status(404).json({ error: "Phone not found" });
+      } else {
+        response.json(updatedPhone);
+      }
+    })
+    .catch((error) => {
+      console.error("Error updating phone:", error);
+      response.status(500).json({ error: "Error updating phone" });
+    });
+});
 
 
 
