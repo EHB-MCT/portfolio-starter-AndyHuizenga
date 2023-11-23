@@ -101,7 +101,18 @@ app.put("/api/phones/:id", (request, response) => {
 
 
 
+// Post a new phone
+app.post("/api/phones", (request, response) => {
+  const { name, brand } = request.body;
 
-
-
-
+  db("phones")
+    .insert({ name, brand })
+    .returning("*")
+    .then((newPhone) => {
+      response.json(newPhone);
+    })
+    .catch((error) => {
+      console.error("Error creating phone:", error); // Log the error
+      response.status(500).json({ error: "Error creating phone" });
+    });
+});
