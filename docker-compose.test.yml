@@ -17,6 +17,7 @@ services:
       db:
         condition: service_healthy
     command: ["npm", "run", "test-watch"]
+    
   db:
     image: postgres:latest
     container_name: db
