@@ -116,3 +116,25 @@ app.post("/api/phones", (request, response) => {
       response.status(500).json({ error: "Error creating phone" });
     });
 });
+
+
+// Delete a phone by ID
+app.delete("/api/phones/:id", (request, response) => {
+  const { id } = request.params;
+
+  db("phones")
+    .where({ id })
+    .del()
+    .then((numDeleted) => {
+      if (numDeleted === 0) {
+        response.status(404).json({ error: "Phone not found" });
+      } else {
+        response.json({ message: "Phone deleted successfully" });
+      }
+    })
+    .catch((error) => {
+      console.error("Error deleting phone:", error);
+      response.status(500).json({ error: "Error deleting phone" });
+    });
+});
+
