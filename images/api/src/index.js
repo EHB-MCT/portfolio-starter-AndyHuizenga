@@ -3,7 +3,7 @@ const knex = require("knex");
 const app = express();
 require('dotenv').config();
 
-const knexfile = require("../knexfile");
+const knexfile = require("./db/knexfile");
 const port = process.env.PORT || 3000;
 app.use(express.json());
 

@@ -13,8 +13,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon src/index.js",
-    "seed": "sleep 10 && npx knex seed:run"
+    "start": "npm run migrate && npm run seed && nodemon src/index.js",
+    "migrate": "npx knex migrate:latest --cwd ./src/db",
+    "seed": "npx knex seed:run --cwd ./src/db"
   },
   "repository": {
     "type": "git",
