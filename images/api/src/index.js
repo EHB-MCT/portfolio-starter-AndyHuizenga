@@ -77,16 +77,35 @@ app.get("/phones", (request, response) => {
     });
 });
 
+// Get a phone by ID
+app.get("/api/phones/:id", (request, response) => {
+  const { id } = request.params;
+
+  db("phones")
+    .where({ id })
+    .first() // Retrieve the first matching record
+    .then((phone) => {
+      if (!phone) {
+        response.status(404).json({ error: "Phone not found" });
+      } else {
+        response.json(phone);
+      }
+    })
+    .catch((error) => {
+      console.error("Error retrieving phone:", error);
+      response.status(500).json({ error: "Error retrieving phone" });
+    });
+});
 
 
 // Update a phone by ID
 app.put("/api/phones/:id", (request, response) => {
   const { id } = request.params;
-  const { name, brand } = request.body;
+  const { name, brand_id } = request.body;
 
   db("phones")
     .where({ id })
-    .update({ name, brand })
+    .update({ name, brand_id })
     .returning("*")
     .then((updatedPhone) => {
       if (updatedPhone.length === 0) {
@@ -105,19 +124,20 @@ app.put("/api/phones/:id", (request, response) => {
 
 // Post a new phone
 app.post("/api/phones", (request, response) => {
-  const { name, brand } = request.body;
+  const { phone_model, brand_id } = request.body;
 
   db("phones")
-    .insert({ name, brand })
+    .insert({ phone_model, brand_id })
     .returning("*")
     .then((newPhone) => {
       response.json(newPhone);
     })
     .catch((error) => {
-      console.error("Error creating phone:", error); // Log the error
+      console.error("Error creating phone:", error);
       response.status(500).json({ error: "Error creating phone" });
     });
 });
+
 
 
 // Delete a phone by ID
