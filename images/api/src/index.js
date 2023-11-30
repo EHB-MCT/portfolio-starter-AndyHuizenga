@@ -7,6 +7,7 @@ const knexfile = require("./db/knexfile");
 const port = process.env.PORT || 3000;
 app.use(express.json());
 
+
 app.listen(port, () => {
   console.log("up and running")
 })
@@ -171,3 +172,9 @@ app.get("/brands", (request, response) => {
       response.status(500).json({ error: "Internal server error" });
     });
 });
+
+
+
+
+
+module.exports = app;
