@@ -1,0 +1,75 @@
+# Phone App
+
+This project is a school assignment for the DEV 5 class. It is an app that saves the name and brand of phones for people. The database consists of two tables: `phones` and `phones_brands`.
+
+## Getting Started
+
+### Prerequisites
+
+Make sure you have Docker and Docker Compose installed.
+
+### Installation
+
+1. Clone the repository: git clone https://github.com/EHB-MCT/portfolio-starter-AndyHuizenga.git
+2. Navigate to the project directory: cd portfolio-starter-AndyHuizenga
+3. Copy the sample environment file: cp .env.example .env & Update the .env file with your database configuration.
+4. Build and start the Docker containers: docker-compose up -d
+
+This will start the development server and the associated database.
+
+# Database Setup
+The database consists of two tables:
+
+1. Phones Brands Table (phones_brands):
+
+CREATE TABLE phones_brands (
+  id SERIAL PRIMARY KEY,
+  brand_name VARCHAR(255) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+Phones Table (phones):
+
+2. Phone names 
+
+CREATE TABLE phones (
+  id SERIAL PRIMARY KEY,
+  phone_model VARCHAR(255) NOT NULL,
+  brand_id INTEGER,
+  FOREIGN KEY (brand_id) REFERENCES phones_brands(id),
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+The app will be accessible at http://localhost:3000.
+
+# Endpoints
+
+GET /api/phones: Get a list of all phones.
+GET /api/phones/:id: Get details of a specific phone by ID.
+PUT /api/phones/:id: Update a phone's details by ID.
+POST /api/phones: Add a new phone to the database.
+DELETE /api/phones/:id: Delete a phone from the database by ID.
+GET /brands: Get a list of all phone brands.
+
+
+# How to run a test 
+
+npm test: Run tests.
+npm run test-watch: Run tests in watch mode.
+npm run start: Start the development server.
+npm run migrate: Run database migrations.
+npm run seed: Seed the database with initial data.
+Testing
+
+To run tests, use the following command:
+npm test
+
+# Author
+
+Andy Huizenga
+
+# License
+
+This project is licensed under the ISC License - see the LICENSE file for details.
+
