@@ -15,11 +15,13 @@
   "description": "Portefolio-DEV5",
   "main": "index.js",
   "scripts": {
-    "test": "npm run migrate && npm run seed && jest --force-exit --detectOpenHandles",
-    "test-watch": "npm run migrate && npm run seed && jest --watchAll",
+    "test": "npm run prepare --force-exit --detectOpenHandles",
+    "test-watch": "npm run prepare --watchAll",
     "start": "npm run migrate && npm run seed && nodemon src/index.js",
+    "dev": "npx knex migrate:latest --cwd ./src/db npx knex seed/run --cwd ./src/db & nodemon src/index.js",
     "migrate": "npx knex migrate:latest --cwd ./src/db",
-    "seed": "npx knex seed:run --cwd ./src/db"
+    "seed": "npx knex seed:run --cwd ./src/db",
+    "prepare": "npm run migrate && npm run seed && jest"
   },
   "repository": {
     "type": "git",
@@ -30,5 +32,8 @@
   "bugs": {
     "url": "https://github.com/EHB-MCT/portfolio-starter-AndyHuizenga/issues"
   },
-  "homepage": "https://github.com/EHB-MCT/portfolio-starter-AndyHuizenga#readme"
+  "homepage": "https://github.com/EHB-MCT/portfolio-starter-AndyHuizenga#readme",
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.23.3"
+  }
 }
