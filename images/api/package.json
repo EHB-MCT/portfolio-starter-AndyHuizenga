@@ -22,7 +22,7 @@
     "migrate": "npx knex migrate:latest --cwd ./src/db",
     "seed": "npx knex seed:run --cwd ./src/db",
     "prepare": "npm run migrate && npm run seed && jest",
-    "ci": "npm run prepare && npm run testJ"
+    "ci": "npm run prepare && jest --detectOpenHandles --coverage --forceExit"
   },
   "repository": {
     "type": "git",

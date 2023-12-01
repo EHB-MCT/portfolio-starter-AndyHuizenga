@@ -16,7 +16,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: ["npm", "run", "test-watch"]
+    command: ["npm", "run", "ci"]
     
   db:
     image: postgres:latest
