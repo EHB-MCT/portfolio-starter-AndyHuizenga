@@ -1,8 +1,10 @@
 # Contribution Guidelines
 
+
 Thank you for considering contributing to our project! Whether you're fixing a bug, implementing a new feature, or suggesting improvements, your contributions are welcome.
 
 To contribute, please follow these steps:
+
 
 ## Getting Started
 
@@ -48,3 +50,13 @@ Please note that this project is governed by our [Code of Conduct](CODE_OF_CONDU
 By contributing, you agree that your contributions will be licensed under the project's [LICENSE](MIT).
 
 Thank you for your contributions!
+
+
+## Roadmap en visie
+
+Fill in 
+
+## Get in touch
+
+Andy.huizenga@student.ehb.be 
+

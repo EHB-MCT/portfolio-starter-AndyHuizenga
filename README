@@ -2,6 +2,8 @@
 
 This project is a school assignment for the DEV 5 class. It is an app that saves the name and brand of phones for people. The database consists of two tables: `phones` and `phones_brands`.
 
+nuttig: 
+
 ## Getting Started
 
 ### Prerequisites
@@ -64,6 +66,10 @@ Testing
 
 To run tests, use the following command:
 npm test
+
+# Help 
+
+Feel free to reach out to andy.huizenga@student.ehb.be if you need any help.
 
 # Author
 
