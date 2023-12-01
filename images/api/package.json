@@ -21,7 +21,8 @@
     "dev": "npx knex migrate:latest --cwd ./src/db npx knex seed/run --cwd ./src/db & nodemon src/index.js",
     "migrate": "npx knex migrate:latest --cwd ./src/db",
     "seed": "npx knex seed:run --cwd ./src/db",
-    "prepare": "npm run migrate && npm run seed && jest"
+    "prepare": "npm run migrate && npm run seed && jest",
+    "ci": "npm run prepare && npm run testJ"
   },
   "repository": {
     "type": "git",
