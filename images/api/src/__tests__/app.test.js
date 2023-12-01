@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../src/index');
+const { app, closeServer } = require('../index');
 
 describe('GET /', () => {
   test('responds with "hello world"', async () => {
@@ -17,4 +17,7 @@ describe('GET /', () => {
 //   });
 // });
 
+afterAll(() => {
+    closeServer();
+  });
 

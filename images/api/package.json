@@ -15,7 +15,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run prepare --force-exit --detectOpenHandles",
-    "testJ": "jest --force-exit --detectOpenHandles ",
+    "testJ": "jest --watchAll --detectOpenHandles --coverage",
     "test-watch": "npm run prepare --watchAll",
     "start": "npm run migrate && npm run seed && nodemon src/index.js",
     "dev": "npx knex migrate:latest --cwd ./src/db npx knex seed/run --cwd ./src/db & nodemon src/index.js",

@@ -2,17 +2,24 @@ const express = require("express");
 const knex = require("knex");
 const app = express();
 require('dotenv').config();
+const { CheckPhoneNames } = require("./helpers/helpers");
 
 const knexfile = require("./db/knexfile");
 const port = process.env.PORT || 3000;
 app.use(express.json());
 
+console.log("is .env working", process.env.POSTGRES_PASSWORD);
 
-app.listen(port, () => {
-  console.log("up and running")
-})
-console.log("port is running")
 
+const server = app.listen(port, () => {
+  console.log("Server is up and running on port " + port);
+});
+
+console.log("Port is running");
+
+const closeServer = () => {
+  server.close() 
+};
 
 //Hello world - status: worked 
 app.get("/", (request,response ) =>{
@@ -127,7 +134,8 @@ app.put("/api/phones/:id", (request, response) => {
 app.post("/api/phones", (request, response) => {
   const { phone_model, brand_id } = request.body;
 
-  db("phones")
+  if(CheckPhoneNames(phone_model)) {
+    db("phones")
     .insert({ phone_model, brand_id })
     .returning("*")
     .then((newPhone) => {
@@ -137,6 +145,9 @@ app.post("/api/phones", (request, response) => {
       console.error("Error creating phone:", error);
       response.status(500).json({ error: "Error creating phone" });
     });
+  } else {
+    response.status(403).send({message: "name not formatted correclty"})
+  }
 });
 
 
@@ -175,6 +186,4 @@ app.get("/brands", (request, response) => {
 
 
 
-
-
-module.exports = app;
+module.exports = { app, closeServer };
