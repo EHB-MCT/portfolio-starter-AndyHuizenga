@@ -1,0 +1,27 @@
+name: testflow
+
+on:
+  push:
+    branches: [ main ] 
+
+env: 
+  POSTGRES_USER: test
+  POSTGRES_PASSWORD: test
+  POSTGRES_DB: test
+  
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: build docker containers
+        run: docker-compose -f docker-compose.ci.yml  build 
+
+      - name: run docker containers
+        run: |
+          echo --- Running test cases ---
+          docker-compose -f docker-compose.ci.yml up --exit-code-from api
+          echo --- Completed test cases ---
+  
