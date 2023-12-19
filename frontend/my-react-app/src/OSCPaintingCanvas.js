@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './OSCDataDisplay.css';
+import './PaintingCanvas.css';
 import { handleClearData } from './buttonss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import socketIOClient from 'socket.io-client';
@@ -64,7 +64,7 @@ function OSCDataDisplay() {
         Clear OSC Data
       </button>
 
-      <div className="canvas-container">
+      <div className="painting-canvas-container">
         <canvas ref={canvasRef} width={500} height={500} className="live-canvas"></canvas>
       </div>
     </div>

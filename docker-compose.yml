@@ -19,7 +19,7 @@ services:
         condition: service_healthy
 
   db:
-    image: postgres:latest
+    image: postgres:13
     container_name: db
     environment:
       POSTGRES_USER: 

@@ -50,8 +50,8 @@ function OSCDataDisplay() {
           <tbody>
             {oscData.map((data, index) => (
               <tr key={index}>
-                <td>{data.position.x}</td>
-                <td>{data.position.y}</td>
+              <td>{data.position && data.position.x}</td>
+              <td>{data.position && data.position.y}</td>
               </tr>
             ))}
           </tbody>
