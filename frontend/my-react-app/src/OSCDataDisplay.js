@@ -17,7 +17,7 @@ function OSCDataDisplay() {
       setOSCData(initialData);
     });
 
-    // Listen for real-time updates
+
     socket.on('osc-data-update', (oscUpdate) => {
       setOSCData((prevData) => [...prevData, oscUpdate]);
     });

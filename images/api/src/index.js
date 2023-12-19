@@ -26,6 +26,7 @@ app.use(cors());
 console.log('is .env working', process.env.POSTGRES_PASSWORD);
 
 const oscReceivedData = [];
+const allOscData = []; 
 const oscport = 6001;
 
 const oscServer = app.listen(oscport, () => {
@@ -40,13 +41,20 @@ const udpPort = new osc.UDPPort({
 
 udpPort.on('message', (oscMsg) => {
   if (isType1Message(oscMsg)) {
-    oscReceivedData.push(oscMsg);
-    console.log('Received touch coordinations:', oscMsg);
-    io.emit('osc-data-update', {
+    const newOscData = {
       position: {
         x: parseFloat(oscMsg.args[0].value),
         y: parseFloat(oscMsg.args[1].value),
       },
+    };
+    oscReceivedData.push(newOscData);
+    allOscData.push(newOscData);
+
+    console.log('Received touch coordinations:', oscMsg);
+
+    // Emit new data to all connected clients
+    io.emit('osc-data-update', {
+      position: newOscData.position,
     });
   }
 });
@@ -54,7 +62,6 @@ udpPort.on('message', (oscMsg) => {
 udpPort.open();
 
 function isType1Message(oscMsg) {
-
   return (
     oscMsg.address === '/touch/pos' &&
     oscMsg.args &&
@@ -65,11 +72,8 @@ function isType1Message(oscMsg) {
 }
 
 app.get('/oscdata', (req, res) => {
-  const formattedData = oscReceivedData.map((entry) => ({
-    position: {
-      x: parseFloat(entry.args[0].value),
-      y: parseFloat(entry.args[1].value),
-    },
+  const formattedData = allOscData.map((entry) => ({
+    position: entry.position,
   }));
 
   res.json(formattedData);
