@@ -83,6 +83,27 @@ app.get('/', (request, response) => {
   response.send('hello world');
 });
 
+app.post('/cleardata', (req, res) => {
+  oscReceivedData.length = 0;
+  res.status(204).send();
+});
+
+io.on('connection', (socket) => {
+  console.log('Client connected');
+  socket.emit('initial-osc-data', oscReceivedData);
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
+
+server.listen(port, () => {
+  console.log(`Server is up and running on port ${port}`);
+});
+
+
+
+
 const db = knex(knexfile.development);
 
 app.get("api/phones", (request, response) => {
@@ -203,33 +224,3 @@ app.get("/brands", (request, response) => {
       response.status(500).json({ error: "Internal server error" });
     });
 });
-
-app.get('/oscdata', (req, res) => {
-  const formattedData = oscReceivedData.map((entry) => ({
-    position: {
-      x: parseFloat(entry.args[0].value),
-      y: parseFloat(entry.args[1].value),
-    },
-  }));
-
-  res.json(formattedData);
-});
-
-app.post('/cleardata', (req, res) => {
-  oscReceivedData.length = 0;
-  res.status(204).send();
-});
-
-io.on('connection', (socket) => {
-  console.log('Client connected');
-  socket.emit('initial-osc-data', oscReceivedData);
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-  });
-});
-
-server.listen(port, () => {
-  console.log(`Server is up and running on port ${port}`);
-});
-

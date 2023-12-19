@@ -10,6 +10,8 @@ export const handleClearData = async () => {
   
       // Assuming you still want to log a success message even if there's no JSON data
       console.log('OSC data cleared successfully');
+
+      window.location.reload(true);
   
       // If you want to return something, return a success message or null
       return 'OSC data cleared successfully';

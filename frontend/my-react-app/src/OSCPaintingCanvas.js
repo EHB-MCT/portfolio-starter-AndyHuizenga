@@ -6,7 +6,9 @@ import socketIOClient from 'socket.io-client';
 
 const ENDPOINT = 'http://localhost:3000'; // Update with your server URL
 
+
 function OSCDataDisplay() {
+  console.log("test")
   const [oscData, setOSCData] = useState([]);
   const canvasRef = useRef(null);
 
@@ -35,16 +37,18 @@ function OSCDataDisplay() {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-
+  
     oscData.forEach((data) => {
-      const x = mapOSCValueToCanvas(data.position.x * -1, canvas.width);
-      const y = mapOSCValueToCanvas(data.position.y , canvas.height);
-
-      // Draw a point on the canvas
-      ctx.fillStyle = 'red';
-      ctx.beginPath();
-      ctx.arc(x, y, 5, 0, 2 * Math.PI);
-      ctx.fill();
+      if (data.position && data.position.x !== undefined && data.position.y !== undefined) {
+        const x = mapOSCValueToCanvas(data.position.x * -1, canvas.width);
+        const y = mapOSCValueToCanvas(data.position.y, canvas.height);
+  
+        // Draw a point on the canvas
+        ctx.fillStyle = 'red';
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, 2 * Math.PI);
+        ctx.fill();
+      }
     });
   }, [oscData]);
 
@@ -65,7 +69,7 @@ function OSCDataDisplay() {
       </button>
 
       <div className="painting-canvas-container">
-        <canvas ref={canvasRef} width={500} height={500} className="live-canvas"></canvas>
+        <canvas ref={canvasRef} width={4985} height={4985} className="live-canvas"></canvas>
       </div>
     </div>
   );

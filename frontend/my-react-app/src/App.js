@@ -33,11 +33,12 @@ function App() {
                   <Link className="nav-link" to="/oscpainting">OSC Painting Canvas</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/painting">Painting Canvas</Link>
-                </li>
-                <li className="nav-item">
                   <Link className="nav-link" to="/">OSC Data Display</Link>
                 </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/painting">Painting Canvas</Link>
+                </li>
+            
                
               
               </ul>

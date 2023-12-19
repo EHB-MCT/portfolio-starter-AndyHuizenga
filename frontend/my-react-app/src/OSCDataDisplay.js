@@ -27,10 +27,7 @@ function OSCDataDisplay() {
       setOSCData([]);
     });
 
-        // Fetch data from the /oscdata endpoint only if oscData is initially empty
-        if (oscData.length === 0) {
-          fetchOscData();
-        }    
+      
 
         fetchOscData();
     // Clean up socket when component unmounts
