@@ -36,3 +36,24 @@
     transform: rotate(360deg);
   }
 }
+
+body {
+  background-color: #f8f9fa; /* Light grey color */
+}
+
+.navbar {
+  margin-bottom: 10px;
+}
+
+.nav-item {
+  margin: 0 100px; /* Add spacing between navigation items */
+}
+
+.navbar-nav {
+  flex-direction: row; /* Align links horizontally */
+}
+
+.navbar-collapse {
+  display: flex;
+  justify-content: center;
+}
