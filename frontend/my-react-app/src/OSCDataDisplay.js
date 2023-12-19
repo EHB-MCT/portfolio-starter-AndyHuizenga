@@ -27,9 +27,29 @@ function OSCDataDisplay() {
       setOSCData([]);
     });
 
+        // Fetch data from the /oscdata endpoint only if oscData is initially empty
+        if (oscData.length === 0) {
+          fetchOscData();
+        }    
+
+        fetchOscData();
     // Clean up socket when component unmounts
     return () => socket.disconnect();
   }, []);
+
+  const fetchOscData = async () => {
+    try {
+      const response = await fetch(`${ENDPOINT}/oscdata`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch OSC data');
+      }
+
+      const data = await response.json();
+      setOSCData(data);
+    } catch (error) {
+      console.error('Error fetching OSC data:', error);
+    }
+  };
 
   return (
     <div>
