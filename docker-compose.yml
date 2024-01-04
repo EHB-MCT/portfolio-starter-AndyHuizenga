@@ -52,9 +52,9 @@ services:
   frontend:
     container_name: frontend
     build:
-      context: ./frontend/my-react-app 
+      context: ./images/my-react-app 
     ports:
-      - "3000:3000"  
+      - "3001:3001"  
     volumes:
       - ./frontend/my-react-app:/usr/src/app  
     depends_on:
