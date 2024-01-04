@@ -48,6 +48,17 @@ services:
       - pgadmin-data:/var/lib/pgadmin
     ports:
       - '5050:80'
+      
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend/my-react-app 
+    ports:
+      - "3000:3000"  
+    volumes:
+      - ./frontend/my-react-app:/usr/src/app  
+    depends_on:
+      - api
 
 volumes:
   db-data:
