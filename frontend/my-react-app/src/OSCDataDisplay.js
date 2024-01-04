@@ -27,8 +27,6 @@ function OSCDataDisplay() {
       setOSCData([]);
     });
 
-      
-
         fetchOscData();
     // Clean up socket when component unmounts
     return () => socket.disconnect();
