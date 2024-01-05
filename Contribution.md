@@ -51,7 +51,6 @@ By contributing, you agree that your contributions will be licensed under the pr
 
 Thank you for your contributions!
 
-
 ## Roadmap en visie
 
 Fill in 

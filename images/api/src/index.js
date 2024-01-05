@@ -1,65 +1,127 @@
-const express = require("express");
-const knex = require("knex");
+const express = require('express');
+const knex = require('knex');
+const cors = require('cors');
+const http = require('http');
+const socketIo = require('socket.io');
+const osc = require('osc');
+
+
+const { CheckPhoneNames } = require('./helpers/helpers');
+const knexfile = require('./db/knexfile');
+const { log } = require('console');
+
 const app = express();
-require('dotenv').config();
-const { CheckPhoneNames } = require("./helpers/helpers");
-
-const knexfile = require("./db/knexfile");
-const port = process.env.PORT || 3000;
-app.use(express.json());
-
-console.log("is .env working", process.env.POSTGRES_PASSWORD);
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
 
 
-const server = app.listen(port, () => {
-  console.log("Server is up and running on port " + port);
 });
 
-console.log("Port is running");
+app.use(cors())
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
+
+
+const port = process.env.PORT || 3000;
+
+app.use(express.json());
+app.use(cors());
+
+console.log('is .env working', process.env.POSTGRES_PASSWORD);
+
+const oscReceivedData = [];
+const allOscData = []; 
+const oscport = 6001;
+
+const oscServer = app.listen(oscport, () => {
+  console.log('OSC Server is running ' + oscport);
+});
+
+const udpPort = new osc.UDPPort({
+  localAddress: '0.0.0.0',
+  localPort: oscport,
+  metadata: true,
+});
+
+udpPort.on('message', (oscMsg) => {
+  if (isType1Message(oscMsg)) {
+    const newOscData = {
+      position: {
+        x: parseFloat(oscMsg.args[0].value),
+        y: parseFloat(oscMsg.args[1].value),
+      },
+    };
+    oscReceivedData.push(newOscData);
+    allOscData.push(newOscData);
+
+    console.log('Received touch coordinations:', oscMsg);
+
+    // Emit new data to all connected clients
+    io.emit('osc-data-update', {
+      position: newOscData.position,
+    });
+  }
+});
+
+udpPort.open();
+
+function isType1Message(oscMsg) {
+  return (
+    oscMsg.address === '/touch/pos' &&
+    oscMsg.args &&
+    oscMsg.args.length === 2 &&
+    oscMsg.args[0].type === 's' &&
+    oscMsg.args[1].type === 's'
+  );
+}
+
+app.get('/oscdata', (req, res) => {
+  const formattedData = allOscData.map((entry) => ({
+    position: entry.position,
+  }));
+
+  res.json(formattedData);
+});
 
 const closeServer = () => {
-  server.close() 
+  server.close();
 };
 
-//Hello world - status: worked 
-app.get("/", (request,response ) =>{
-  response.send("hello world")
+app.get('/', (request, response) => {
+  response.send('hello world');
+});
 
-})
+app.post('/cleardata', (req, res) => {
+  oscReceivedData.length = 0;
+  res.status(204).send();
+});
+
+io.on('connection', (socket) => {
+  console.log('Client connected');
+  socket.emit('initial-osc-data', oscReceivedData);
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
+
+server.listen(port, () => {
+  console.log(`Server is up and running on port ${port}`);
+});
+
+
+
 
 const db = knex(knexfile.development);
-
-// // Run pending migrations
-// db.migrate.latest()
-//   .then(() => {
-//     // Migration succeeded; start the server
-//     app.listen(port, (err) => {
-//       if (!err) {
-//         console.log("Server is running on port " + port);
-//       } else {
-//         console.log(err);
-//       }
-//     });
-//   })
-//   .catch((error) => {
-//     console.error("Error running migrations:", error);
-//     process.exit(1); // Exit the application on migration error
-//   });
-
-
-// db("schema_name.students").select("*")
-
-// // Read all phones
-// app.get("/api/phones", (request, response) => {
-//   db("phones")
-//     .select("*")
-//     .then((phones) => {
-//       response.json(phones);
-//     })
-//     .catch((error) => {
-//       response.status(500).json({ error: "Error fetching phones" });
-//     });
-// });
 
 app.get("api/phones", (request, response) => {
   db.select()
@@ -134,8 +196,7 @@ app.put("/api/phones/:id", (request, response) => {
 app.post("/api/phones", (request, response) => {
   const { phone_model, brand_id } = request.body;
 
-  if(CheckPhoneNames(phone_model)) {
-    db("phones")
+  db("phones")
     .insert({ phone_model, brand_id })
     .returning("*")
     .then((newPhone) => {
@@ -145,9 +206,20 @@ app.post("/api/phones", (request, response) => {
       console.error("Error creating phone:", error);
       response.status(500).json({ error: "Error creating phone" });
     });
-  } else {
-    response.status(403).send({message: "name not formatted correclty"})
-  }
+});
+
+// Add this route in your Express server
+app.get("/phonesandbrands", (request, response) => {
+  db.select('phones.id', 'phones.phone_model', 'phones.brand_id', 'phones.created_at', 'phones.updated_at', 'phones_brands.brand_name')
+    .from("phones")
+    .leftJoin('phones_brands', 'phones.brand_id', 'phones_brands.id')
+    .then((data) => {
+      response.json(data);
+    })
+    .catch((error) => {
+      console.error(error);
+      response.status(500).json({ error: "Internal server error" });
+    });
 });
 
 
@@ -183,7 +255,3 @@ app.get("/brands", (request, response) => {
       response.status(500).json({ error: "Internal server error" });
     });
 });
-
-
-
-module.exports = { app, closeServer };
