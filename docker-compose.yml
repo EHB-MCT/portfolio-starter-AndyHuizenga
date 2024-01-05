@@ -1,0 +1,77 @@
+version: '3'
+services:
+  api:
+    container_name: api
+    build:
+      context: ./images/api
+    ports:
+      - "8080:3000"
+      - "6001:6001/udp" 
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: 
+      POSTGRES_PASSWORD: 
+      POSTGRES_DB: 
+      POSTGRES_HOST: db 
+    volumes:
+      - ./images/api/src:/usr/app/src
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:13
+    container_name: db
+    environment:
+      POSTGRES_USER: 
+      POSTGRES_PASSWORD: 
+      POSTGRES_DB: 
+    volumes:
+      - ./_volumes/db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB "]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+    
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    ports:
+      - '5050:80'
+      
+  frontend:
+    container_name: frontend
+    build:
+      context: ./images/my-react-app 
+    ports:
+      - "3001:3001"  
+    volumes:
+      - ./frontend/my-react-app:/usr/src/app  
+    depends_on:
+      - api
+
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 30
+ 
+
+networks:
+  mynetwork:
+    driver: bridge
+    
+volumes:
+  db-data:
+  pgadmin-data:
