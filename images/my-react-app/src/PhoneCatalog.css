@@ -1,0 +1,26 @@
+/* PhoneCatalog.css */
+.phone-catalog {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  
+  h1 {
+    text-align: center;
+  }
+  
+
+
+
+#Del {
+    background-color: rgb(196, 77, 77);
+    text-align: center;
+    color: white;
+    
+}
+
+.table th:nth-child(3) {
+    display: none;
+
+    border: re;
+  }
+  
