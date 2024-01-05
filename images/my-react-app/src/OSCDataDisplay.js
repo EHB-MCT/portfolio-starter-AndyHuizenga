@@ -3,8 +3,24 @@ import './OSCDataDisplay.css';
 import { handleClearData } from './Buttons';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import socketIOClient from 'socket.io-client';
+import axios from 'axios';
 
-const ENDPOINT = 'http://localhost:3000'; // Update with your server URL
+const ENDPOINT = 'http://localhost:8080'; // Update with your server URL
+
+// dockerized-app.js
+
+
+// Use the host.docker.internal on Windows, or 172.17.0.1 on Linux
+const hostAddress = '172.19.0.4'
+const hostPort = 3000;
+
+console.log('heyhey')
+
+
+axios.get(`http://${hostAddress}:${hostPort}`)
+  .then(response => console.log(response.data))
+  .catch(error => console.error(error));
+
 
 function OSCDataDisplay() {
   const [oscData, setOSCData] = useState([]);

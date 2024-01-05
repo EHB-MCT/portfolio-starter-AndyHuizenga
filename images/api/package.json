@@ -27,7 +27,7 @@
     "seed": "npx knex seed:run --cwd ./src/db",
     "prepare": "npm run migrate && npm run seed && jest",
     "ci": "npm run prepare && jest --detectOpenHandles --coverage --forceExit",
-    "osc":"nodemon src/index.js"
+    "osc": "nodemon src/index.js"
   },
   "repository": {
     "type": "git",
@@ -44,4 +44,3 @@
     "supertest": "^6.3.3"
   }
 }
-

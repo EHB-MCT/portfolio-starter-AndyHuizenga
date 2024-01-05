@@ -60,6 +60,10 @@ services:
     depends_on:
       - api
 
+networks:
+  mynetwork:
+    driver: bridge
+    
 volumes:
   db-data:
   pgadmin-data:
