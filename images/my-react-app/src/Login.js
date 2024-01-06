@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import { Link } from 'react-router-dom';
 
-const ENDPOINT = 'http://localhost:3000'; 
+const ENDPOINT = 'http://localhost:3001'; 
 
 const Login = () => {
   const [email, setEmail] = useState('');

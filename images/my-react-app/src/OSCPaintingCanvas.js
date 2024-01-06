@@ -4,7 +4,7 @@ import { handleClearData } from './buttonss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import socketIOClient from 'socket.io-client';
 
-const ENDPOINT = 'http://localhost:8080'; // Update with your server URL
+const ENDPOINT = 'http://localhost:3001'; // Update with your server URL
 
 
 function OSCDataDisplay() {

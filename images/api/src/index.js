@@ -38,7 +38,7 @@ app.use((req, res, next) => {
 });
 
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 app.use(express.json());
 app.use(cors());
@@ -292,6 +292,7 @@ app.post('/api/register', async (req, res) => {
     console.log("User registered successfully with " + email )
     res.json({ message: 'User registered successfully' });
   } catch (error) {
+    console.log("User registered unsuccessfully with " + email )
     console.error('Error during registration:', error);
     res.status(500).json({ error: 'Internal server error', details: error.message });
   }
