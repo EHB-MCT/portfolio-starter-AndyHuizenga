@@ -40,14 +40,12 @@ function App() {
                   <Link className="nav-link" to="/">OSC Data Display</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/Login">Login</Link>
-                </li>
-                <li className="nav-item">
                   <Link className="nav-link" to="/test">PhoneCatalog</Link>
                 </li>
-               
-              
-              
+                <li className="nav-item">
+                  <Link className="nav-link" to="/Login">Login</Link>
+                </li>
+
               </ul>
           
             </div>
