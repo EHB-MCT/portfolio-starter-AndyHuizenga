@@ -346,13 +346,32 @@ app.get('/api/protected', verifyToken, (req, res) => {
 });
 
 
-app.post('/api/save-drawing-points', (req, res) => {
+app.post('/api/save-drawing-points', verifyToken, async (req, res) => {
   console.log("saving trigger");
   
   // Log the request object
   console.log("Request object:", req.body);
 
+  try {
+    const userId = req.user.userId;
+    const { all } = req.body;
 
-  res.send("Drawing points saved successfully");
+    // Save drawing data in the database
+    const savedDrawing = await db('drawings')
+      .insert({
+        user_id: userId,
+        all: JSON.stringify(all),
+      })
+      .returning('*');
+
+    console.log('Drawing points saved successfully:', savedDrawing);
+    res.json(savedDrawing);
+  } catch (error) {
+    console.error('Error saving drawing points:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
+
+
+
 

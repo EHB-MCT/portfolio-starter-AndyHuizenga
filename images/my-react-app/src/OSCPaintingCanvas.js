@@ -28,8 +28,8 @@ function OSCDataDisplay() {
   const saveDrawing = async () => {
     try {
       console.log(localStorage.getItem('token'));
-      console.log(`token render ${token}`)
-
+      console.log(`token render ${token}`);
+  
       // Fetch user only when the button is pressed
       const fetchUserResponse = await fetch(`${ENDPOINT}/api/check-authentication`, {
         method: 'GET',
@@ -49,8 +49,9 @@ function OSCDataDisplay() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Authorization: token,
           },
-          body: JSON.stringify(all),
+          body: JSON.stringify({ all, token }), // Include the 'all' object and the token
         });
   
         if (saveDrawingResponse.ok) {
@@ -71,6 +72,7 @@ function OSCDataDisplay() {
       alert('Unexpected error occurred. Please try again later.');
     }
   };
+  
   
   useEffect(() => {
     const socket = socketIOClient(ENDPOINT);
