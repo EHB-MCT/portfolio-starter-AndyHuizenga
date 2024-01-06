@@ -347,5 +347,12 @@ app.get('/api/protected', verifyToken, (req, res) => {
 
 
 app.post('/api/save-drawing-points', (req, res) => {
- console.log("saving trigger")
+  console.log("saving trigger");
+  
+  // Log the request object
+  console.log("Request object:", req.body);
+
+
+  res.send("Drawing points saved successfully");
 });
+

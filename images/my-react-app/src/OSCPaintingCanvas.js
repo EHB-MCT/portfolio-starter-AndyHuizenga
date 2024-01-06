@@ -17,6 +17,10 @@ function OSCDataDisplay() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token').trim();
   console.log('Token:', encodeURIComponent(token));
+  const all = {
+    xList: [],
+    yList: [],
+  };
 
 
 
@@ -45,9 +49,8 @@ function OSCDataDisplay() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
-          body: JSON.stringify({ oscData }),
+          body: JSON.stringify(all),
         });
   
         if (saveDrawingResponse.ok) {
@@ -91,23 +94,38 @@ function OSCDataDisplay() {
     return () => socket.disconnect();
   }, []);
 
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
 
+   
+
+   
     oscData.forEach((data) => {
       if (data.position && data.position.x !== undefined && data.position.y !== undefined) {
+        
         const x = mapOSCValueToCanvas(data.position.x * -1, canvas.width);
         const y = mapOSCValueToCanvas(data.position.y, canvas.height);
-
         // Draw a point on the canvas
         ctx.fillStyle = 'red';
         ctx.beginPath();
         ctx.arc(x, y, 5, 0, 2 * Math.PI);
         ctx.fill();
+       
+        all.xList.push(x);
+        all.yList.push(y);
+
       }
     });
   }, [oscData]);
+
+  console.log("All coordinates:", all);
+
+  // Use the 'all' object as needed (for example, store it in a state variable)
+  console.log("All x values:", all.xList);
+  console.log("All y values:", all.yList);
+  
 
   const mapOSCValueToCanvas = (oscValue, canvasSize) => {
     // Map the OSC value between -5 and 5 to the canvas size
