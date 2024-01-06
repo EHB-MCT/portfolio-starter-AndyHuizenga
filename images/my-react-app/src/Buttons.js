@@ -1,6 +1,6 @@
 export const handleClearData = async () => {
     try {
-      const response = await fetch('http://localhost:8080/cleardata', {
+      const response = await fetch('http://localhost:3001/cleardata', {
         method: 'POST',
       });
   
