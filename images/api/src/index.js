@@ -4,6 +4,11 @@ const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io');
 const osc = require('osc');
+const jwt = require('jsonwebtoken');
+const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
+
+
 
 
 const { CheckPhoneNames } = require('./helpers/helpers');
@@ -22,6 +27,8 @@ const io = socketIo(server, {
 });
 
 app.use(cors())
+app.use(bodyParser.json());
+
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -254,4 +261,77 @@ app.get("/brands", (request, response) => {
       console.error(error);
       response.status(500).json({ error: "Internal server error" });
     });
+});
+
+
+
+// user 
+
+
+const crypto = require('crypto');
+
+// Generate a random secret key
+const generateSecretKey = () => {
+  return crypto.randomBytes(32).toString('hex');
+};
+
+const SECRET_KEY = generateSecretKey();
+console.log('Temporary secret key for development:', SECRET_KEY);
+
+
+app.post('/api/register', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await db('users').insert({
+      email,
+      password: hashedPassword,
+    });
+
+    res.json({ message: 'User registered successfully' });
+  } catch (error) {
+    console.error('Error during registration:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+});
+
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await db('users').where({ email }).first();
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      const token = jwt.sign({ email, userId: user.id }, SECRET_KEY, { expiresIn: '1h' });
+      res.json({ token, user: { id: user.id, email: user.email } });
+    } else {
+      res.status(401).json({ error: 'Invalid email or password' });
+    }
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+function verifyToken(req, res, next) {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  jwt.verify(token, SECRET_KEY, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    req.user = decoded;
+    next();
+  });
+}
+
+app.get('/api/protected', verifyToken, (req, res) => {
+  res.json({ message: 'Protected route accessed successfully' });
 });
