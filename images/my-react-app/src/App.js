@@ -6,6 +6,8 @@ import OSCPaintingCanvas from './OSCPaintingCanvas';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import PhoneCatalog from './PhoneCatalog';
+import Login from './Login';
+import CreateUser from './CreateUser';
 
 
 
@@ -38,7 +40,7 @@ function App() {
                   <Link className="nav-link" to="/">OSC Data Display</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/painting">Painting Canvas</Link>
+                  <Link className="nav-link" to="/Login">Login</Link>
                 </li>
                 <li className="nav-item">
                   <Link className="nav-link" to="/test">PhoneCatalog</Link>
@@ -54,9 +56,10 @@ function App() {
 
         <Routes>
           <Route path="/" element={<OSCDataDisplay />} />
-          {/* <Route path="/painting" element={<PaintingCanvas />} /> */}
+      
           <Route path="/oscpainting" element={<OSCPaintingCanvas />} />
           <Route path="/test" element={<PhoneCatalog />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </div>
     </Router>
