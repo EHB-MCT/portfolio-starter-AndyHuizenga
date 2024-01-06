@@ -268,15 +268,6 @@ app.get("/brands", (request, response) => {
 // user 
 
 
-const crypto = require('crypto');
-
-// Generate a random secret key
-const generateSecretKey = () => {
-  return crypto.randomBytes(32).toString('hex');
-};
-
-const SECRET_KEY = generateSecretKey();
-console.log('Temporary secret key for development:', SECRET_KEY);
 
 
 app.post('/api/register', async (req, res) => {
@@ -316,23 +307,45 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+const SECRET_KEY = '03030303elir';
+
+// Function to generate a JWT
+const generateToken = (payload) => {
+  return jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' }); // Adjust the expiration time as needed
+};
+
+// Function to verify a JWT
 function verifyToken(req, res, next) {
   const token = req.headers.authorization;
+  console.log('Received Token:', token);
 
   if (!token) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  jwt.verify(token, SECRET_KEY, (err, decoded) => {
+  jwt.verify(token, SECRET_KEY, { algorithms: ['HS256'] }, (err, decoded) => {
     if (err) {
+      console.error('Token verification failed:', err);
       return res.status(401).json({ error: 'Invalid token' });
     }
-
+  
+    console.log('Decoded Token Payload:', decoded);
+  
     req.user = decoded;
     next();
   });
 }
 
+app.get('/api/check-authentication', verifyToken, (req, res) => {
+  // If the token is valid, send the authenticated user data
+  res.json({ user: req.user });
+});
+
 app.get('/api/protected', verifyToken, (req, res) => {
   res.json({ message: 'Protected route accessed successfully' });
+});
+
+
+app.post('/api/save-drawing-points', (req, res) => {
+ console.log("saving trigger")
 });

@@ -20,6 +20,9 @@ const Login = () => {
   
       if (response.ok) {
         const data = await response.json();
+        // Store the token in localStorage
+        localStorage.setItem('token', data.token);
+  
         // Successful login, you can handle the data, such as storing the token in localStorage
         console.log('Login successful:', data);
         alert('Login successful!');
