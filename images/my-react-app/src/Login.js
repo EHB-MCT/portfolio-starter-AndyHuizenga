@@ -22,14 +22,17 @@ const Login = () => {
         const data = await response.json();
         // Successful login, you can handle the data, such as storing the token in localStorage
         console.log('Login successful:', data);
+        alert('Login successful!');
       } else {
         const data = await response.json();
         console.error('Error during login:', data.error);
+        alert('Login failed. Please check your credentials.');
         // Handle the error, you can show an error message or update state accordingly
       }
     } catch (error) {
       console.error('Error during login:', error);
       // Handle unexpected errors, show an error message or update state accordingly
+      alert('Unexpected error occurred during login. Please try again later.');
     }
   };
   
