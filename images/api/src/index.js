@@ -289,7 +289,7 @@ app.post('/api/register', async (req, res) => {
       email,
       password: hashedPassword,
     });
-
+    console.log("User registered successfully with " + email )
     res.json({ message: 'User registered successfully' });
   } catch (error) {
     console.error('Error during registration:', error);
