@@ -58,6 +58,7 @@ function App() {
           <Route path="/oscpainting" element={<OSCPaintingCanvas />} />
           <Route path="/test" element={<PhoneCatalog />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/createUser" element={<CreateUser />} />
         </Routes>
       </div>
     </Router>
