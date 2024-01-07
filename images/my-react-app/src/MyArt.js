@@ -42,7 +42,7 @@ function MyArt() {
             if (fetchDrawingsResponse.ok) {
               const drawings = await fetchDrawingsResponse.json();
               setUserDrawings(drawings);
-              drawSavedDrawingsOnCanvas(drawings);
+              drawSavedDrawingOnCanvas(drawings);
             } else {
               const data = await fetchDrawingsResponse.json();
               console.error('Error fetching drawings:', data.error);
@@ -69,48 +69,57 @@ function MyArt() {
     fetchUserDrawings();
   }, [navigate]);
 
-  const drawSavedDrawingsOnCanvas = (drawings) => {
+  const drawSavedDrawingOnCanvas = (drawing) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-
-    drawings.forEach((drawing) => {
-      const xList = drawing.all.xList;
-      const yList = drawing.all.yList;
-
-      xList.forEach((x, index) => {
-        const y = yList[index];
-        ctx.fillStyle = 'blue'; 
-        ctx.beginPath();
-        ctx.arc(x, y, 5, 0, 2 * Math.PI);
-        ctx.fill();
-      });
+    
+    // Clear the canvas before drawing the new artwork
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+    const xList = drawing.all.xList;
+    const yList = drawing.all.yList;
+  
+    xList.forEach((x, index) => {
+      const y = yList[index];
+      ctx.fillStyle = 'blue'; 
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, 2 * Math.PI);
+      ctx.fill();
     });
+  };
+
+  const handleShowButtonClick = (drawing) => {
+    // Your logic to handle the "Show" button click
+    // You can update the canvas based on the selected drawing, for example:
+    drawSavedDrawingOnCanvas(drawing);
   };
 
   return (
     <div className="container">
       <h1 className="mt-4 mb-4">My Art</h1>
       <div className="row">
-        {userDrawings.map((drawing) => (
-          <div key={drawing.id} className="col-md-6 mb-4">
-            <div className="card">
+        <div className="col-md-6 mb-4 mt-4">
+          {userDrawings.map((drawing) => (
+            <div key={drawing.id} className="card">
               <div className="card-body">
                 <h5 className="card-title">Drawing ID: {drawing.id}</h5>
                 <p className="card-text">User ID: {drawing.user_id}</p>
                 <p className="card-text">Created At: {drawing.created_at}</p>
-                <div className="x-list">
-                  <p className="card-text">X List:</p>
-                  {drawing.all.xList.map((x, index) => (
-                    <span key={index}>{x} </span>
-                  ))}
-                </div>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => handleShowButtonClick(drawing)}
+                >
+                  Show
+                </button>
               </div>
             </div>
+          ))}
+        </div>
+        <div className="col-md-6 mb-4">
+          <div className="painting-canvas-container">
+            <canvas ref={canvasRef} width={4985} height={4985} className="live-canvas"></canvas>
           </div>
-        ))}
-      </div>
-      <div className="painting-canvas-container">
-        <canvas ref={canvasRef} width={4985} height={4985} className="live-canvas"></canvas>
+        </div>
       </div>
     </div>
   );
