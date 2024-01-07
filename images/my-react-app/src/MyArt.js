@@ -8,6 +8,8 @@ function MyArt() {
   const [userDrawings, setUserDrawings] = useState([]);
   const navigate = useNavigate();
   const canvasRef = useRef(null);
+  const [userEmail, setUserEmail] = useState('');
+  const colorDrawing = "red"
   
   console.log("show saved"+ userDrawings)
 
@@ -43,6 +45,7 @@ function MyArt() {
               const drawings = await fetchDrawingsResponse.json();
               setUserDrawings(drawings);
               drawSavedDrawingOnCanvas(drawings);
+              setUserEmail(authenticatedUser.email);
             } else {
               const data = await fetchDrawingsResponse.json();
               console.error('Error fetching drawings:', data.error);
@@ -69,6 +72,11 @@ function MyArt() {
     fetchUserDrawings();
   }, [navigate]);
 
+  useEffect(() => {
+    console.log('Fetched user drawings:', userDrawings);
+  }, [userDrawings]);
+  
+
   const drawSavedDrawingOnCanvas = (drawing) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -76,12 +84,12 @@ function MyArt() {
     // Clear the canvas before drawing the new artwork
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-    const xList = drawing.all.xList;
-    const yList = drawing.all.yList;
+    const xList = drawing.all?.xList || []; 
+    const yList = drawing.all?.yList || [];
   
     xList.forEach((x, index) => {
       const y = yList[index];
-      ctx.fillStyle = 'blue'; 
+      ctx.fillStyle = colorDrawing; 
       ctx.beginPath();
       ctx.arc(x, y, 5, 0, 2 * Math.PI);
       ctx.fill();
@@ -100,10 +108,10 @@ function MyArt() {
       <div className="row">
         <div className="col-md-6 mb-4 mt-4">
           {userDrawings.map((drawing) => (
-            <div key={drawing.id} className="card">
+            <div key={drawing.id} className="card mb-4">
               <div className="card-body">
-                <h5 className="card-title">Drawing ID: {drawing.id}</h5>
-                <p className="card-text">User ID: {drawing.user_id}</p>
+                <h5 className="card-title">Drawing: {drawing.id}</h5>
+                <p className="card-text">User: {drawing.email}</p>
                 <p className="card-text">Created At: {drawing.created_at}</p>
                 <button
                   className="btn btn-primary"
