@@ -138,17 +138,16 @@ function OSCDataDisplay() {
   };
 
   
-  
+  const goToMyArt = () => {
+    // Navigate to the '/my-art' route
+    navigate('/my-art');
+  };
+
 
 
   return (
     <div>
       <h1>Live OSC Data Painting</h1>
-
- 
-     
-     
-
 
       <div className="painting-canvas-container">
         <canvas ref={canvasRef} width={4985} height={4985} className="live-canvas"></canvas>
@@ -159,6 +158,10 @@ function OSCDataDisplay() {
       </button>
       <button onClick={handleClearData} className="btn btn-danger">
         Clear OSC Data
+      </button>
+
+      <button onClick={goToMyArt} className="btn btn-success">
+        Go to My Art
       </button>
     </div>
     
