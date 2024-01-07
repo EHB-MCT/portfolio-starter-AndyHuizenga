@@ -372,6 +372,21 @@ app.post('/api/save-drawing-points', verifyToken, async (req, res) => {
   }
 });
 
+app.get('/api/drawings/user', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
 
+    // Fetch user drawings from the database
+    const userDrawings = await db('drawings')
+      .select('*')
+      .where({ user_id: userId });
+
+    console.log('User drawings fetched successfully:', userDrawings);
+    res.json(userDrawings);
+  } catch (error) {
+    console.error('Error fetching user drawings:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 
