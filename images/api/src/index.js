@@ -399,3 +399,28 @@ app.get('/api/drawings/user', verifyToken, async (req, res) => {
 });
 
 
+app.delete('/api/drawings/:drawingId', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const drawingId = req.params.drawingId;
+
+    // Check if the drawing belongs to the authenticated user
+    const drawingToDelete = await db('drawings')
+      .select('*')
+      .where({ id: drawingId, user_id: userId })
+      .first();
+
+    if (!drawingToDelete) {
+      return res.status(404).json({ error: 'Drawing not found or unauthorized to delete' });
+    }
+
+    // Delete the drawing from the database
+    await db('drawings').where({ id: drawingId }).del();
+
+    console.log('Drawing deleted successfully:', drawingToDelete);
+    res.json({ message: 'Drawing deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting drawing:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});

@@ -138,7 +138,44 @@ function MyArt() {
     navigate('/login');
   };
 
+  const formatTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'long' });
+    const year = date.getFullYear();
   
+    return `${day}th ${month} ${year}`;
+  };
+
+  const handleDeleteButtonClick = async (drawing) => {
+    try {
+      const token = localStorage.getItem('token').trim();
+console.log("delted id" + drawing.id)
+const drawingId = drawing.id
+      const deleteDrawingResponse = await fetch(`${ENDPOINT}/api/drawings/${drawingId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      });
+
+      if (deleteDrawingResponse.ok) {
+        // Drawing deleted successfully, you may want to update the state or fetch drawings again
+        alert('Drawing deleted successfully!');
+        handleShowButtonClick(drawing)
+
+        
+      } else {
+        const data = await deleteDrawingResponse.json();
+        console.error('Error deleting drawing:', data.error);
+        alert('Error deleting drawing. Please try again.');
+      }
+    } catch (error) {
+      console.error('Unexpected error during handleDeleteButtonClick:', error);
+      alert('Unexpected error occurred. Please try again later.');
+    }
+  };
 
   return (
     <div className="container">
@@ -150,19 +187,29 @@ function MyArt() {
             <div key={drawing.id} className="card mb-4">
               <div className="card-body">
                 <h5 className="card-title">Drawing: {drawing.id}</h5>
-                <p className="card-text">User: {drawing.email}</p>
-                <p className="card-text">Created At: {drawing.created_at}</p>
+                <p className="card-text">Created by: {drawing.email}</p>
+                <p className="card-text">
+                  Created on: {formatTimestamp(drawing.created_at)}
+                </p>
+                <button
+  className="btn"
+  style={{ backgroundColor: 'purple', color: 'white', marginRight: '5px' }}
+  onClick={() => handleShowButtonClick(drawing)}
+>
+  Show
+</button>
                 <button
                   className="btn btn-primary"
-                  onClick={() => handleShowButtonClick(drawing)}
-                >
-                  Show
-                </button>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => changeColor(drawing)}
+                  onClick={() => changeColor(drawing)} style={{ marginLeft: '10px' }}
                 >
                   change color
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => handleDeleteButtonClick(drawing)}
+                  style={{ marginLeft: '10px' }}
+                >
+                  Delete
                 </button>
               </div>
             </div>
