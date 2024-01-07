@@ -12,7 +12,9 @@ const { log } = require('console');
 const app = express();
 const server = http.createServer(app);
 const port = process.env.PORT || 3001;
-
+const { startOscServer, createUdpPort, isType1Message, extractOscData, logReceivedTouchCoordinates, emitOscDataUpdate } = require('./helpers/OSCdataFormater');
+const { generateToken, verifyToken } = require('./helpers/UserCheck');
+const db = knex(knexfile.development);
 
 const io = socketIo(server, {
   cors: {
@@ -28,32 +30,49 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 
+ /**
+ * Initializes OSC server and UDP port for OSC communication.
+ * Listens for OSC messages, processes them, and updates data accordingly.
+ */
 
-const { startOscServer, createUdpPort, isType1Message, extractOscData, logReceivedTouchCoordinates, emitOscDataUpdate } = require('./helpers/OSCdataFormater');
+function startOSC() {
 
-const oscReceivedData = [];
-const allOscData = [];
-const oscport = 6001;
+ 
+  const oscReceivedData = [];
+  const allOscData = [];
+  const oscport = 6001;
 
-const oscServer = startOscServer(app, oscport);
-const udpPort = createUdpPort(oscport);
+  const oscServer = startOscServer(app, oscport);
+  const udpPort = createUdpPort(oscport);
 
-udpPort.on('message', (oscMsg) => {
-  if (isType1Message(oscMsg)) {
-    const newOscData = extractOscData(oscMsg);
-    oscReceivedData.push(newOscData);
-    allOscData.push(newOscData);
-    logReceivedTouchCoordinates(oscMsg);
-    emitOscDataUpdate(io, newOscData.position);
-  }
-});
+  udpPort.on('message', (oscMsg) => {
+    if (isType1Message(oscMsg)) {
+      const newOscData = extractOscData(oscMsg);
+      oscReceivedData.push(newOscData);
+      allOscData.push(newOscData);
+      logReceivedTouchCoordinates(oscMsg);
+      emitOscDataUpdate(io, newOscData.position);
+    }
+  });
 
-udpPort.open();
+  udpPort.open();
+}
 
-// Rest of your main file...
+startOSC();
 
 
+
+
+  /**
+ * Express route to handle GET requests for OSC data.
+ * Formats and sends the collected OSC data in a JSON response.
+ *
+ * @param {object} req - The HTTP request object.
+ * @param {object} res - The HTTP response object.
+ * @returns {object} res - Array with object containing all the points 
+ */
 app.get('/oscdata', (req, res) => {
+
   const formattedData = allOscData.map((entry) => ({
     position: entry.position,
   }));
@@ -69,6 +88,14 @@ app.get('/', (request, response) => {
   response.send('hello world');
 });
 
+  /**
+ * Express route to handle POST requests for clearing OSC data.
+ * Clears the stored OSC received data and sends a no-content (204) response.
+ *
+ * @param {object} req - The HTTP request object.
+ * @param {object} res - The HTTP response object.
+ * @returns {object} res - No-content (204) response.
+ */
 app.post('/cleardata', (req, res) => {
   oscReceivedData.length = 0;
   res.status(204).send();
@@ -89,8 +116,14 @@ server.listen(port, () => {
 
 
 
-
-const db = knex(knexfile.development);
+  /**
+ * Express route to handle GET requests for fetching all phones.
+ * Retrieves all phone records from the database and sends them in a JSON response.
+ *
+ * @param {object} request - The HTTP request object.
+ * @param {object} response - The HTTP response object.
+ * @returns {object} response - JSON response with an array of phone records.
+ */
 
 app.get("api/phones", (request, response) => {
   db.select()
@@ -104,6 +137,14 @@ app.get("api/phones", (request, response) => {
     });
 });
 
+/**
+ * Express route to handle GET requests for fetching all phones.
+ * Retrieves all phone records from the database and sends them in a JSON response.
+ *
+ * @param {object} request - The HTTP request object.
+ * @param {object} response - The HTTP response object.
+ * @returns {object} response - JSON response with an array of phone records.
+ */
 app.get("/phones", (request, response) => {
   db.select()
     .from("phones")
@@ -116,7 +157,14 @@ app.get("/phones", (request, response) => {
     });
 });
 
-// Get a phone by ID
+/**
+ * Express route to handle GET requests for fetching a phone by ID.
+ * Retrieves a phone record from the database based on the provided ID and sends it in a JSON response.
+ *
+ * @param {object} request - The HTTP request object.
+ * @param {object} response - The HTTP response object.
+ * @returns {object} response - JSON response with the phone record or an error message if not found.
+ */
 app.get("/api/phones/:id", (request, response) => {
   const { id } = request.params;
 
@@ -136,8 +184,14 @@ app.get("/api/phones/:id", (request, response) => {
     });
 });
 
-
-// Update a phone by ID
+/**
+ * Express route to handle PUT requests for updating a phone by ID.
+ * Updates the specified phone record in the database and sends the updated record in a JSON response.
+ *
+ * @param {object} request - The HTTP request object.
+ * @param {object} response - The HTTP response object.
+ * @returns {object} response - JSON response with the updated phone record or an error message if not found.
+ */
 app.put("/api/phones/:id", (request, response) => {
   const { id } = request.params;
   const { name, brand_id } = request.body;
@@ -161,7 +215,14 @@ app.put("/api/phones/:id", (request, response) => {
 
 
 
-// Post a new phone
+/**
+ * Express route to handle POST requests for creating a new phone record.
+ * Creates a new phone record in the database and sends the newly created record in a JSON response.
+ *
+ * @param {object} request - The HTTP request object.
+ * @param {object} response - The HTTP response object.
+ * @returns {object} response - JSON response with the newly created phone record or an error message.
+ */
 app.post("/api/phones", (request, response) => {
   const { phone_model, brand_id } = request.body;
 
@@ -177,7 +238,15 @@ app.post("/api/phones", (request, response) => {
     });
 });
 
-// Add this route in your Express server
+/**
+ * Express route to handle GET requests for retrieving phones and their corresponding brands.
+ * Retrieves records from the "phones" table, including the associated brand name from the "phones_brands" table.
+ * Sends the formatted data in a JSON response.
+ *
+ * @param {object} request - The HTTP request object.
+ * @param {object} response - The HTTP response object.
+ * @returns {object} response - JSON response with the retrieved phone and brand data or an error message.
+ */
 app.get("/phonesandbrands", (request, response) => {
   db.select('phones.id', 'phones.phone_model', 'phones.brand_id', 'phones.created_at', 'phones.updated_at', 'phones_brands.brand_name')
     .from("phones")
@@ -193,7 +262,14 @@ app.get("/phonesandbrands", (request, response) => {
 
 
 
-// Delete a phone by ID
+/**
+ * Express route to handle DELETE requests for deleting a phone by ID.
+ * Deletes the phone record from the "phones" table based on the provided ID.
+ *
+ * @param {object} request - The HTTP request object.
+ * @param {object} response - The HTTP response object.
+ * @returns {object} response - JSON response indicating the success or failure of the deletion process.
+ */
 app.delete("/api/phones/:id", (request, response) => {
   const { id } = request.params;
 
@@ -213,7 +289,14 @@ app.delete("/api/phones/:id", (request, response) => {
     });
 });
 
-//get all brands
+/**
+ * Express route to handle GET requests for retrieving all phone brands.
+ * Retrieves and sends all records from the "phones_brands" table in a JSON response.
+ *
+ * @param {object} request - The HTTP request object.
+ * @param {object} response - The HTTP response object.
+ * @returns {object} response - JSON array containing all phone brands.
+ */
 app.get("/brands", (request, response) => {
   db("phones_brands")
     .select("*")
@@ -227,12 +310,14 @@ app.get("/brands", (request, response) => {
 });
 
 
-
-// user routes //
-
-
-
-//create new user
+/**
+ * Express route to handle POST requests for user registration.
+ * Inserts a new user record with hashed password into the "users" table.
+ *
+ * @param {object} req - The HTTP request object.
+ * @param {object} res - The HTTP response object.
+ * @returns {object} res - JSON response indicating success or failure of user registration.
+ */
 app.post('/api/register', async (req, res) => {
   const { email, password } = req.body;
 
@@ -252,7 +337,15 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// check user account and login 
+/**
+ * Express route to handle POST requests for user login.
+ * Retrieves the user with the provided email, checks the password, and issues a JWT token upon successful login.
+ *
+ * @param {object} req - The HTTP request object.
+ * @param {object} res - The HTTP response object.
+ * @returns {object} res - JSON response containing a JWT token and user information on successful login,
+ *                       or an error message on unsuccessful login.
+ */
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -271,35 +364,6 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-const SECRET_KEY = '03030303elir';
-
-// Function to generate a JWT
-const generateToken = (payload) => {
-  return jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' }); // Adjust the expiration time as needed
-};
-
-// Function to verify a JWT
-function verifyToken(req, res, next) {
-  const token = req.headers.authorization;
-  console.log('Received Token:', token);
-
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  jwt.verify(token, SECRET_KEY, { algorithms: ['HS256'] }, (err, decoded) => {
-    if (err) {
-      console.error('Token verification failed:', err);
-      return res.status(401).json({ error: 'Invalid token' });
-    }
-  
-    console.log('Decoded Token Payload:', decoded);
-  
-    req.user = decoded;
-    next();
-  });
-}
-
 // If the token is valid, send the authenticated user data
 app.get('/api/check-authentication', verifyToken, (req, res) => {
 
@@ -310,8 +374,15 @@ app.get('/api/protected', verifyToken, (req, res) => {
   res.json({ message: 'Protected route accessed successfully' });
 });
 
-
-// Save drawing data in the database
+/**
+ * Express route to handle POST requests for saving drawing points.
+ * Requires a valid JWT token for authentication.
+ * Saves the drawing points associated with the authenticated user in the database.
+ *
+ * @param {object} req - The HTTP request object.
+ * @param {object} res - The HTTP response object.
+ * @returns {object} res - JSON response containing the saved drawing points or an error message.
+ */
 app.post('/api/save-drawing-points', verifyToken, async (req, res) => {
   console.log("saving trigger");
   console.log("Request object:", req.body);
@@ -336,7 +407,15 @@ app.post('/api/save-drawing-points', verifyToken, async (req, res) => {
   }
 });
 
-  // Fetch user drawings from the database
+/**
+ * Express route to handle GET requests for fetching drawings associated with the authenticated user.
+ * Requires a valid JWT token for authentication.
+ * Retrieves drawings from the database based on the authenticated user's ID.
+ *
+ * @param {object} req - The HTTP request object.
+ * @param {object} res - The HTTP response object.
+ * @returns {object} res - JSON response containing the user's drawings or an error message.
+ */
 app.get('/api/drawings/user', verifyToken, async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -362,7 +441,15 @@ app.get('/api/drawings/user', verifyToken, async (req, res) => {
   }
 });
 
-// Check if the drawing belongs to the authenticated user and delete it
+/**
+ * Express route to handle DELETE requests for deleting a drawing associated with the authenticated user.
+ * Requires a valid JWT token for authentication.
+ * Deletes a drawing from the database based on the provided drawing ID and the authenticated user's ID.
+ *
+ * @param {object} req - The HTTP request object.
+ * @param {object} res - The HTTP response object.
+ * @returns {object} res - JSON response indicating the success or failure of the deletion.
+ */
 app.delete('/api/drawings/:drawingId', verifyToken, async (req, res) => {
   try {
     const userId = req.user.userId;
