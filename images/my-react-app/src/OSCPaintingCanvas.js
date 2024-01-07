@@ -165,8 +165,13 @@ function OSCDataDisplay() {
 
   
   const goToMyArt = () => {
-    // Navigate to the '/my-art' route
-    navigate('/my-art');
+    if (!isLoggedIn) {
+
+      alert('You need to login to see your saved art!');
+    } else {
+    
+      navigate('/my-art');
+    }
   };
 
 

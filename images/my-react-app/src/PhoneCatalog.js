@@ -93,56 +93,60 @@ const PhoneCatalog = () => {
   };
 
   return (
-    <div className="container mt-4">
-      <h1 className="mb-4">Phone Catalogs</h1>
-      <form onSubmit={handleSubmit} className="row g-3">
-    <div className="col-md-4 mb-3">
-      <label htmlFor="phoneModel" className="form-label">
-        Phone Model:
-      </label>
-      <input
-        type="text"
-        className="form-control"
-        id="phoneModel"
-        value={phoneModel}
-        onChange={(e) => setPhoneModel(e.target.value)}
-        required
-      />
-    </div>
-    <div className="col-md-6 mb-3">
-      <label htmlFor="brand" className="form-label">
-        Brand:
-      </label>
-      <select
-        className="form-select"
-        id="brand"
-        value={selectedBrand}
-        onChange={(e) => setSelectedBrand(e.target.value)}
-        required
-      >
-        <option value="" disabled>
-          Select Brand
+<div className="container mt-4">
+  <h1 className="mb-2">Phone Catalogs</h1>
+  <p>Feel free to add the phone you're using so we can improve our website and project!</p>
+  <form onSubmit={handleSubmit} className="row g-3"  style={{ marginTop: '2rem' }}>
+  <div className="col-md-4 mb-3">
+    <label htmlFor="phoneModel" className="form-label float-start">
+      Phone Model:
+    </label>
+    <input
+      type="text"
+      className="form-control"
+      id="phoneModel"
+      value={phoneModel}
+      onChange={(e) => setPhoneModel(e.target.value)}
+      required
+    />
+  </div>
+  <div className="col-md-6 mb-3">
+    <label htmlFor="brand" className="form-label float-start">
+      Brand:
+    </label>
+    <select
+      className="form-select"
+      id="brand"
+      value={selectedBrand}
+      onChange={(e) => setSelectedBrand(e.target.value)}
+      required
+    >
+      <option value="" disabled>
+        Select Brand
+      </option>
+      {brands.map((brand) => (
+        <option key={brand.id} value={brand.id}>
+          {brand.brand_name}
         </option>
-        {brands.map((brand) => (
-          <option key={brand.id} value={brand.id}>
-            {brand.brand_name}
-          </option>
-        ))}
-      </select>
-    </div>
-    <div className="col-12">
-      <button type="submit" className="btn btn-primary">
-        Add Phone
-      </button>
-    </div>
-  </form>
+      ))}
+    </select>
+  </div>
+  <div className="col-md-2">
+    <button type="submit" className="btn btn-primary" style={{ marginTop: '2rem' }}>
+      Add Phone
+    </button>
+  </div>
+</form>
+
+
+
   <div className="mt-4">
         <table className="table table-bordered">
           <thead className="thead-dark">
             <tr>
               <th>Phone Model</th>
               <th>Brand</th>
-              <th>Action</th>
+              
             </tr>
           </thead>
           <tbody>
@@ -150,9 +154,7 @@ const PhoneCatalog = () => {
               <tr key={phone.id}>
                 <td>{phone.phone_model}</td>
                 <td>{phone.brand_name}</td>
-                <td id="Del" className="delete-button" onClick={() => handleDelete(phone.id)}>
-                  <span>Delete</span>
-                </td>
+           
               </tr>
             ))}
           </tbody>
