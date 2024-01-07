@@ -9,9 +9,10 @@ function MyArt() {
   const navigate = useNavigate();
   const canvasRef = useRef(null);
   const [userEmail, setUserEmail] = useState('');
-  const colorDrawing = "red"
+  const [currentColor, setCurrentColor] = useState('red');
+  const allColors = ["red", "blue", "yellow", "orange"];
   
-  console.log("show saved"+ userDrawings)
+
 
   useEffect(() => {
     // Fetch user-specific drawings when the component mounts
@@ -89,7 +90,7 @@ function MyArt() {
   
     xList.forEach((x, index) => {
       const y = yList[index];
-      ctx.fillStyle = colorDrawing; 
+      ctx.fillStyle = currentColor; 
       ctx.beginPath();
       ctx.arc(x, y, 5, 0, 2 * Math.PI);
       ctx.fill();
@@ -97,10 +98,28 @@ function MyArt() {
   };
 
   const handleShowButtonClick = (drawing) => {
-    // Your logic to handle the "Show" button click
-    // You can update the canvas based on the selected drawing, for example:
     drawSavedDrawingOnCanvas(drawing);
   };
+
+  const changeColor = (drawing) => {
+    setCurrentColor((prevColor) => {
+      // Toggle to the next color in the array
+      const currentIndex = allColors.indexOf(prevColor);
+      const nextIndex = (currentIndex + 1) % allColors.length;
+  
+      console.log('Current Color:', prevColor);
+      console.log('Next Index:', nextIndex);
+      console.log('Next Color:', allColors[nextIndex]);
+  
+      return allColors[nextIndex];
+    });
+  
+    handleShowButtonClick(drawing)
+  };
+  
+
+
+  
 
   return (
     <div className="container">
@@ -118,6 +137,12 @@ function MyArt() {
                   onClick={() => handleShowButtonClick(drawing)}
                 >
                   Show
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => changeColor(drawing)}
+                >
+                  change color
                 </button>
               </div>
             </div>
