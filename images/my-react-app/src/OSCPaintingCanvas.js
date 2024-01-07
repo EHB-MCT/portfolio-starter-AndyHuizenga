@@ -4,6 +4,7 @@ import { handleClearData } from './Buttons';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import socketIOClient from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
+import UserCard from './UserCard';
 
 
 
@@ -17,6 +18,7 @@ function OSCDataDisplay() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const trimmedToken = token ? token.trim() : null;
+  const [currentUserEmail, setCurrentUserEmail] = useState('');
   console.log('Token:', encodeURIComponent(trimmedToken));
   
   console.log('Token:', encodeURIComponent(token));
@@ -30,8 +32,10 @@ function OSCDataDisplay() {
   useEffect(() => {
     // Fetch user data only if token is present
     if (token) {
+      
       const fetchUserData = async () => {
         try {
+        
           const fetchUserResponse = await fetch(`${ENDPOINT}/api/check-authentication`, {
             method: 'GET',
             headers: {
@@ -41,8 +45,12 @@ function OSCDataDisplay() {
           });
   
           if (fetchUserResponse.ok) {
+            
             const authenticatedUser = await fetchUserResponse.json();
             setIsLoggedIn(authenticatedUser ? true : false);
+            if (authenticatedUser.user && authenticatedUser.user.email) {
+              setCurrentUserEmail(authenticatedUser.user.email);
+            }
           } else {
             // Handle the case where user authentication fails
             console.error('User authentication failed');
@@ -164,6 +172,7 @@ function OSCDataDisplay() {
 
   return (
     <div>
+       <UserCard userEmail={currentUserEmail} />
       <h1>Live OSC Data Painting</h1>
 
       <div className="painting-canvas-container">

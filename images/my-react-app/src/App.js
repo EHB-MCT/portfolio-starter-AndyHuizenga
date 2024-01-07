@@ -17,7 +17,7 @@ function App() {
   return (
     <Router>
       <div className="App">
-      <nav className="navbar navbar-expand-lg navbar-light bg-light">
+      <nav className="navbar navbar-expand-lg navbar-light bg-light mb-4">
           <div className="container">
             <Link className="navbar-brand" to="/welcome">OSC ART</Link>
             <button
@@ -40,7 +40,7 @@ function App() {
                   <Link className="nav-link" to="/">OSC Data Display</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/test">PhoneCatalog</Link>
+                  <Link className="nav-link" to="/test">Phone List</Link>
                 </li>
                 <li className="nav-item">
                   <Link className="nav-link" to="/Login">Login</Link>

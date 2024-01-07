@@ -338,6 +338,7 @@ function verifyToken(req, res, next) {
 
 app.get('/api/check-authentication', verifyToken, (req, res) => {
   // If the token is valid, send the authenticated user data
+
   res.json({ user: req.user });
 });
 
