@@ -12,11 +12,9 @@ const { log } = require('console');
 const app = express();
 const server = http.createServer(app);
 const port = process.env.PORT || 3001;
-const { startOscServer, createUdpPort, isType1Message, extractOscData, logReceivedTouchCoordinates, emitOscDataUpdate } = require('./helpers/OSCdataformater');
+const { startOscServer, createUdpPort, isType1Message, extractOscData, logReceivedTouchCoordinates, emitOscDataUpdate } = require('./helpers/OSCdataFormater');
 const { generateToken, verifyToken } = require('./helpers/UserCheck');
 const db = knex(knexfile.development);
-
-
 
 const io = socketIo(server, {
   cors: {
@@ -31,30 +29,19 @@ app.use(cors())
 app.use(bodyParser.json());
 app.use(express.json());
 
-// app.js
-
-const helloWorld = () => {
-  return 'Hello, World!';
-};
-
-if (process.env.NODE_ENV !== 'test') {
-  const server = app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  });
-}
-
-
 
  /**
  * Initializes OSC server and UDP port for OSC communication.
  * Listens for OSC messages, processes them, and updates data accordingly.
  */
 
+
+let oscReceivedData = [];
+let allOscData = [];
 function startOSC() {
 
  
-  const oscReceivedData = [];
-  const allOscData = [];
+  
   const oscport = 6001;
 
   const oscServer = startOscServer(app, oscport);
@@ -73,7 +60,7 @@ function startOSC() {
   udpPort.open();
 }
 
-
+startOSC();
 
 
 
@@ -95,7 +82,9 @@ app.get('/oscdata', (req, res) => {
   res.json(formattedData);
 });
 
-
+const closeServer = () => {
+  server.close();
+};
 
 app.get('/', (request, response) => {
   response.send('hello world');
@@ -115,15 +104,17 @@ app.post('/cleardata', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-
+  console.log('Client connected');
   socket.emit('initial-osc-data', oscReceivedData);
 
   socket.on('disconnect', () => {
-  
+    console.log('Client disconnected');
   });
 });
 
-
+server.listen(port, () => {
+  console.log(`Server is up and running on port ${port}`);
+});
 
 
 
@@ -143,7 +134,7 @@ app.get("api/phones", (request, response) => {
       response.json(data);
     })
     .catch((error) => {
-    
+      console.error(error);
       response.status(500).json({ error: "Internal server error" });
     });
 });
@@ -163,7 +154,7 @@ app.get("/phones", (request, response) => {
       response.json(data);
     })
     .catch((error) => {
-    
+      console.error(error);
       response.status(500).json({ error: "Internal server error" });
     });
 });
@@ -190,7 +181,7 @@ app.get("/api/phones/:id", (request, response) => {
       }
     })
     .catch((error) => {
-     
+      console.error("Error retrieving phone:", error);
       response.status(500).json({ error: "Error retrieving phone" });
     });
 });
@@ -219,7 +210,7 @@ app.put("/api/phones/:id", (request, response) => {
       }
     })
     .catch((error) => {
-      
+      console.error("Error updating phone:", error);
       response.status(500).json({ error: "Error updating phone" });
     });
 });
@@ -244,7 +235,7 @@ app.post("/api/phones", (request, response) => {
       response.json(newPhone);
     })
     .catch((error) => {
-      
+      console.error("Error creating phone:", error);
       response.status(500).json({ error: "Error creating phone" });
     });
 });
@@ -266,7 +257,7 @@ app.get("/phonesandbrands", (request, response) => {
       response.json(data);
     })
     .catch((error) => {
-      
+      console.error(error);
       response.status(500).json({ error: "Internal server error" });
     });
 });
@@ -295,7 +286,7 @@ app.delete("/api/phones/:id", (request, response) => {
       }
     })
     .catch((error) => {
-     
+      console.error("Error deleting phone:", error);
       response.status(500).json({ error: "Error deleting phone" });
     });
 });
@@ -315,7 +306,7 @@ app.get("/brands", (request, response) => {
       response.json(brands);
     })
     .catch((error) => {
-    
+      console.error(error);
       response.status(500).json({ error: "Internal server error" });
     });
 });
@@ -339,13 +330,17 @@ app.post('/api/register', async (req, res) => {
       email,
       password: hashedPassword,
     });
-   
+    console.log("User registered successfully with " + email )
     res.json({ message: 'User registered successfully' });
   } catch (error) {
- 
+    console.log("User registered unsuccessfully with " + email )
+    console.error('Error during registration:', error);
     res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 });
+
+
+const SECRET_KEY = '03030303elir';
 
 /**
  * Express route to handle POST requests for user login.
@@ -369,7 +364,7 @@ app.post('/api/login', async (req, res) => {
       res.status(401).json({ error: 'Invalid email or password' });
     }
   } catch (error) {
-  
+    console.error('Error during login:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -394,7 +389,9 @@ app.get('/api/protected', verifyToken, (req, res) => {
  * @returns {object} res - JSON response containing the saved drawing points or an error message.
  */
 app.post('/api/save-drawing-points', verifyToken, async (req, res) => {
-  
+  console.log("saving trigger");
+  console.log("Request object:", req.body);
+
   try {
     const userId = req.user.userId;
     const { all } = req.body;
@@ -407,10 +404,10 @@ app.post('/api/save-drawing-points', verifyToken, async (req, res) => {
       })
       .returning('*');
 
-    
+    console.log('Drawing points saved successfully:', savedDrawing);
     res.json(savedDrawing);
   } catch (error) {
-    
+    console.error('Error saving drawing points:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -441,10 +438,10 @@ app.get('/api/drawings/user', verifyToken, async (req, res) => {
         email: userEmail,
       }));
 
-    
+    console.log('User drawings fetched successfully:', drawingsWithUserEmail);
     res.json(drawingsWithUserEmail);
   } catch (error) {
-    
+    console.error('Error fetching user drawings:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -476,10 +473,10 @@ app.delete('/api/drawings/:drawingId', verifyToken, async (req, res) => {
   
     await db('drawings').where({ id: drawingId }).del();
 
-    
+    console.log('Drawing deleted successfully:', drawingToDelete);
     res.json({ message: 'Drawing deleted successfully' });
   } catch (error) {
-    
+    console.error('Error deleting drawing:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
