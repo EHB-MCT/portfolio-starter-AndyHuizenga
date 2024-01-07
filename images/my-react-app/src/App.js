@@ -9,8 +9,7 @@ import PhoneCatalog from './PhoneCatalog';
 import Login from './Login';
 import CreateUser from './CreateUser';
 import MyArt from './MyArt';
-
-
+import Welcome from './Welcome';
 
 
 
@@ -20,7 +19,7 @@ function App() {
       <div className="App">
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
           <div className="container">
-            <Link className="navbar-brand" to="oscpainting">OSC ART</Link>
+            <Link className="navbar-brand" to="/welcome">OSC ART</Link>
             <button
               className="navbar-toggler"
               type="button"
@@ -62,6 +61,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/createUser" element={<CreateUser />} />
           <Route path="/my-art" element={<MyArt />} />
+          <Route path="/welcome" element={<Welcome />} />
+
         </Routes>
       </div>
     </Router>
