@@ -11,7 +11,7 @@ const osc = require('osc');
 
 function startOscServer(app, port) {
   const server = app.listen(port, () => {
-    console.log(`OSC Server is running on port ${port}`);
+    
   });
 
   return server;
@@ -64,11 +64,17 @@ function extractOscData(oscMsg) {
 }
 
 function logReceivedTouchCoordinates(oscMsg) {
-  console.log('Received touch coordinates:', oscMsg);
+  
 }
 
 function emitOscDataUpdate(io, position) {
   io.emit('osc-data-update', { position });
+}
+function closeServer() {
+  if (server) {
+    server.close(() => {
+    });
+  }
 }
 
 module.exports = {
@@ -78,5 +84,6 @@ module.exports = {
   extractOscData,
   logReceivedTouchCoordinates,
   emitOscDataUpdate,
+  closeServer
 };
 
