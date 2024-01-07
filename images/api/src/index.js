@@ -60,9 +60,10 @@ function startOSC() {
   udpPort.open();
 }
 
-startOSC();
-
-
+app.post('/start-osc', (req, res) => {
+  startOSC(); 
+  res.send('OSC started.'); 
+});
 
 
   /**

@@ -174,6 +174,23 @@ function OSCDataDisplay() {
     }
   };
 
+  const startOSC = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/start-osc', {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        const data = await response.text();
+        alert(data); // Use alert instead of setMessage
+      } else {
+        alert('Failed to start OSC.'); // Use alert instead of setMessage
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error occurred.'); // Use alert instead of setMessage
+    }
+  };
 
 
   return (
@@ -186,6 +203,9 @@ function OSCDataDisplay() {
           <canvas ref={canvasRef} width={4985} height={4985} className="live-canvas"></canvas>
         </div>
         <div className="buttons-container">
+        <div>
+        <button onClick={startOSC} className="btn btn-primary btn-success">Start OSC</button>
+    </div>
         <button onClick={() => { saveDrawing(); }} className="btn btn-primary">
             Save Drawing
           </button>
