@@ -4,6 +4,7 @@ import { handleClearData } from './Buttons';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import socketIOClient from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
+import UserCard from './UserCard';
 
 
 
@@ -15,7 +16,11 @@ function OSCDataDisplay() {
   const canvasRef = useRef(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
-  const token = localStorage.getItem('token').trim();
+  const token = localStorage.getItem('token');
+  const trimmedToken = token ? token.trim() : null;
+  const [currentUserEmail, setCurrentUserEmail] = useState('');
+  console.log('Token:', encodeURIComponent(trimmedToken));
+  
   console.log('Token:', encodeURIComponent(token));
   const all = {
     xList: [],
@@ -23,26 +28,54 @@ function OSCDataDisplay() {
   };
 
 
-
   
-  const saveDrawing = async () => {
-    try {
-      console.log(localStorage.getItem('token'));
-      console.log(`token render ${token}`);
+  useEffect(() => {
+    // Fetch user data only if token is present
+    if (token) {
+      
+      const fetchUserData = async () => {
+        try {
+        
+          const fetchUserResponse = await fetch(`${ENDPOINT}/api/check-authentication`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: token,
+            },
+          });
   
-      // Fetch user only when the button is pressed
-      const fetchUserResponse = await fetch(`${ENDPOINT}/api/check-authentication`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token,
-        },
-      });
+          if (fetchUserResponse.ok) {
+            
+            const authenticatedUser = await fetchUserResponse.json();
+            setIsLoggedIn(authenticatedUser ? true : false);
+            if (authenticatedUser.user && authenticatedUser.user.email) {
+              setCurrentUserEmail(authenticatedUser.user.email);
+            }
+          } else {
+            // Handle the case where user authentication fails
+            console.error('User authentication failed');
+            alert('User authentication failed. Please log in again.');
+            navigate('/login');
+          }
+        } catch (error) {
+          console.error('Unexpected error during fetchUserData:', error);
+          alert('Unexpected error occurred. Please try again later.');
+        }
+      };
   
-      if (fetchUserResponse.ok) {
-        const authenticatedUser = await fetchUserResponse.json();
-        setIsLoggedIn(authenticatedUser ? true : false);
-        console.log("User is authenticated");
+      fetchUserData();
+    }
+  }, [token, navigate]);
+  
+  
+    const saveDrawing = async () => {
+      try {
+        if (!token) {
+          // Token is not present, handle it gracefully (redirect or show a message)
+          navigate('/login');
+          alert('You need to login to be able to save your art!');  // Redirect to login page or handle it as needed
+          return;
+        }
   
         // Continue with saving the drawing
         const saveDrawingResponse = await fetch(`${ENDPOINT}/api/save-drawing-points`, {
@@ -61,18 +94,11 @@ function OSCDataDisplay() {
           console.error('Error saving drawing:', data.error);
           alert('Error saving drawing. Please try again.');
         }
-      } else {
-        // Handle the case where user authentication fails
-        console.error('User authentication failed');
-        alert('User authentication failed. Please log in again.');
-        navigate('/login');
+      } catch (error) {
+        console.error('Unexpected error during saveDrawing:', error);
+        alert('Unexpected error occurred. Please try again later.');
       }
-    } catch (error) {
-      console.error('Unexpected error during saveDrawing:', error);
-      alert('Unexpected error occurred. Please try again later.');
-    }
-  };
-  
+    };
   
   useEffect(() => {
     const socket = socketIOClient(ENDPOINT);
@@ -139,33 +165,41 @@ function OSCDataDisplay() {
 
   
   const goToMyArt = () => {
-    // Navigate to the '/my-art' route
-    navigate('/my-art');
+    if (!isLoggedIn) {
+
+      alert('You need to login to see your saved art!');
+    } else {
+    
+      navigate('/my-art');
+    }
   };
 
 
 
   return (
     <div>
+      <UserCard userEmail={currentUserEmail} />
       <h1>Live OSC Data Painting</h1>
-
-      <div className="painting-canvas-container">
-        <canvas ref={canvasRef} width={4985} height={4985} className="live-canvas"></canvas>
+      <p>If your osc app is well connected you will be able to draw with your phone!</p>
+      <div className="painting-container">
+        <div className="painting-canvas-container">
+          <canvas ref={canvasRef} width={4985} height={4985} className="live-canvas"></canvas>
+        </div>
+        <div className="buttons-container">
+        <button onClick={() => { saveDrawing(); }} className="btn btn-primary">
+            Save Drawing
+          </button>
+          <button onClick={() => { handleClearData(); alert('OSC Data cleared!'); }} className="btn btn-danger">
+            Clear OSC Data
+          </button>
+          <button onClick={goToMyArt} className="btn btn-success">
+            Go to My Art
+          </button>
+        </div>
       </div>
-
-        <button onClick={saveDrawing} className="btn btn-primary">
-        Save Drawing
-      </button>
-      <button onClick={handleClearData} className="btn btn-danger">
-        Clear OSC Data
-      </button>
-
-      <button onClick={goToMyArt} className="btn btn-success">
-        Go to My Art
-      </button>
     </div>
-    
   );
 }
+
 
 export default OSCDataDisplay;

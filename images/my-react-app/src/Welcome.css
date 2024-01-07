@@ -1,0 +1,15 @@
+.requirements-card {
+    border: 2px solid red;
+    border-radius: 15px;
+    min-height: 120px;
+    background-color: white;
+  }
+  
+  .step-card {
+    border: 2px solid purple;
+    border-radius: 15px;
+    min-height: 120px;
+    max-height: 120px;
+    background-color: rgba(232, 172, 232, 0.127);
+  }
+  

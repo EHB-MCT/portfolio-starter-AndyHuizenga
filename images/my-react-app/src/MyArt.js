@@ -1,6 +1,6 @@
-// MyArt.js
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import UserCard from './UserCard'; 
 
 const ENDPOINT = 'http://localhost:3001'; // Update with your server URL
 
@@ -11,6 +11,7 @@ function MyArt() {
   const [userEmail, setUserEmail] = useState('');
   const [currentColor, setCurrentColor] = useState('red');
   const allColors = ["red", "blue", "yellow", "orange"];
+
   
 
 
@@ -41,17 +42,29 @@ function MyArt() {
                 Authorization: token,
               },
             });
-
             if (fetchDrawingsResponse.ok) {
-              const drawings = await fetchDrawingsResponse.json();
-              setUserDrawings(drawings);
-              drawSavedDrawingOnCanvas(drawings);
-              setUserEmail(authenticatedUser.email);
-            } else {
-              const data = await fetchDrawingsResponse.json();
-              console.error('Error fetching drawings:', data.error);
-              alert('Error fetching drawings. Please try again.');
-            }
+                const drawings = await fetchDrawingsResponse.json();
+              
+                // Check if the array is not empty before extracting email from the first object
+                if (drawings.length > 0) {
+                  setUserDrawings(drawings);
+                  drawSavedDrawingOnCanvas(drawings);
+              
+                  // Use the email from the first object in the array
+                  const firstDrawing = drawings[0];
+                  setUserEmail(firstDrawing.email);
+              
+                  console.log("Drawing email: " + firstDrawing.email);
+                  console.log("User email being shown: " + userEmail);
+                } else {
+                  console.error('Empty array of drawings');
+                  alert('No drawings found for the user.');
+                }
+              } else {
+                const data = await fetchDrawingsResponse.json();
+                console.error('Error fetching drawings:', data.error);
+                alert('Error fetching drawings. Please try again.');
+              }
           } else {
             // Handle the case where user authentication fails
             console.error('User authentication failed');
@@ -117,32 +130,86 @@ function MyArt() {
     handleShowButtonClick(drawing)
   };
   
+  const handleLogout = () => {
+    // Clear token from localStorage
+    localStorage.removeItem('token');
+    
+    // Redirect to the login page
+    navigate('/login');
+  };
 
-
+  const formatTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'long' });
+    const year = date.getFullYear();
   
+    return `${day}th ${month} ${year}`;
+  };
+
+  const handleDeleteButtonClick = async (drawing) => {
+    try {
+      const token = localStorage.getItem('token').trim();
+console.log("delted id" + drawing.id)
+const drawingId = drawing.id
+      const deleteDrawingResponse = await fetch(`${ENDPOINT}/api/drawings/${drawingId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      });
+
+      if (deleteDrawingResponse.ok) {
+        // Drawing deleted successfully, you may want to update the state or fetch drawings again
+        alert('Drawing deleted successfully!');
+        handleShowButtonClick(drawing)
+
+        
+      } else {
+        const data = await deleteDrawingResponse.json();
+        console.error('Error deleting drawing:', data.error);
+        alert('Error deleting drawing. Please try again.');
+      }
+    } catch (error) {
+      console.error('Unexpected error during handleDeleteButtonClick:', error);
+      alert('Unexpected error occurred. Please try again later.');
+    }
+  };
 
   return (
     <div className="container">
       <h1 className="mt-4 mb-4">My Art</h1>
       <div className="row">
         <div className="col-md-6 mb-4 mt-4">
+        <UserCard userEmail={userEmail} onLogout={handleLogout} />
           {userDrawings.map((drawing) => (
             <div key={drawing.id} className="card mb-4">
               <div className="card-body">
                 <h5 className="card-title">Drawing: {drawing.id}</h5>
-                <p className="card-text">User: {drawing.email}</p>
-                <p className="card-text">Created At: {drawing.created_at}</p>
+                <p className="card-text">Created by: {drawing.email}</p>
+                <p className="card-text">
+                  Created on: {formatTimestamp(drawing.created_at)}
+                </p>
+                <button
+  className="btn"
+  style={{ backgroundColor: 'purple', color: 'white', marginRight: '5px' }}
+  onClick={() => handleShowButtonClick(drawing)}
+>
+  Show
+</button>
                 <button
                   className="btn btn-primary"
-                  onClick={() => handleShowButtonClick(drawing)}
-                >
-                  Show
-                </button>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => changeColor(drawing)}
+                  onClick={() => changeColor(drawing)} style={{ marginLeft: '10px' }}
                 >
                   change color
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => handleDeleteButtonClick(drawing)}
+                  style={{ marginLeft: '10px' }}
+                >
+                  Delete
                 </button>
               </div>
             </div>

@@ -1,14 +1,28 @@
 .painting-canvas-container {
   width: 500px;
   height: 500px;
-  margin: 5% auto;
+  margin: 50px auto;
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 2px solid black;
+  border: 2px solid rgb(183, 163, 227);
   height: 60vh;
   background-color: white;
 }
+
+
+
+.buttons-container {
+  display: flex;
+  flex-direction: column;
+  width: 20%;
+  position: absolute;
+  right: 70px;
+  top: 45%
+
+}
+
+
 
 .canvas {
   width: 100%;

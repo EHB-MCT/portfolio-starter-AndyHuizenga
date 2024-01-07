@@ -7,16 +7,13 @@ const osc = require('osc');
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-
-
-
-
-const { CheckPhoneNames } = require('./helpers/helpers');
 const knexfile = require('./db/knexfile');
 const { log } = require('console');
-
 const app = express();
 const server = http.createServer(app);
+const port = process.env.PORT || 3001;
+
+
 const io = socketIo(server, {
   cors: {
     origin: "*",
@@ -28,68 +25,33 @@ const io = socketIo(server, {
 
 app.use(cors())
 app.use(bodyParser.json());
-
-
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
-  next();
-});
-
-
-const port = process.env.PORT || 3001;
-
 app.use(express.json());
-app.use(cors());
 
-console.log('is .env working', process.env.POSTGRES_PASSWORD);
+
+
+const { startOscServer, createUdpPort, isType1Message, extractOscData, logReceivedTouchCoordinates, emitOscDataUpdate } = require('./helpers/OSCdataFormater');
 
 const oscReceivedData = [];
-const allOscData = []; 
+const allOscData = [];
 const oscport = 6001;
 
-const oscServer = app.listen(oscport, () => {
-  console.log('OSC Server is running ' + oscport);
-});
-
-const udpPort = new osc.UDPPort({
-  localAddress: '0.0.0.0',
-  localPort: oscport,
-  metadata: true,
-});
+const oscServer = startOscServer(app, oscport);
+const udpPort = createUdpPort(oscport);
 
 udpPort.on('message', (oscMsg) => {
   if (isType1Message(oscMsg)) {
-    const newOscData = {
-      position: {
-        x: parseFloat(oscMsg.args[0].value),
-        y: parseFloat(oscMsg.args[1].value),
-      },
-    };
+    const newOscData = extractOscData(oscMsg);
     oscReceivedData.push(newOscData);
     allOscData.push(newOscData);
-
-    console.log('Received touch coordinations:', oscMsg);
-
-    // Emit new data to all connected clients
-    io.emit('osc-data-update', {
-      position: newOscData.position,
-    });
+    logReceivedTouchCoordinates(oscMsg);
+    emitOscDataUpdate(io, newOscData.position);
   }
 });
 
 udpPort.open();
 
-function isType1Message(oscMsg) {
-  return (
-    oscMsg.address === '/touch/pos' &&
-    oscMsg.args &&
-    oscMsg.args.length === 2 &&
-    oscMsg.args[0].type === 's' &&
-    oscMsg.args[1].type === 's'
-  );
-}
+// Rest of your main file...
+
 
 app.get('/oscdata', (req, res) => {
   const formattedData = allOscData.map((entry) => ({
@@ -160,7 +122,7 @@ app.get("/api/phones/:id", (request, response) => {
 
   db("phones")
     .where({ id })
-    .first() // Retrieve the first matching record
+    .first()
     .then((phone) => {
       if (!phone) {
         response.status(404).json({ error: "Phone not found" });
@@ -251,6 +213,7 @@ app.delete("/api/phones/:id", (request, response) => {
     });
 });
 
+//get all brands
 app.get("/brands", (request, response) => {
   db("phones_brands")
     .select("*")
@@ -265,11 +228,11 @@ app.get("/brands", (request, response) => {
 
 
 
-// user 
+// user routes //
 
 
 
-
+//create new user
 app.post('/api/register', async (req, res) => {
   const { email, password } = req.body;
 
@@ -289,6 +252,7 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
+// check user account and login 
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -336,8 +300,9 @@ function verifyToken(req, res, next) {
   });
 }
 
+// If the token is valid, send the authenticated user data
 app.get('/api/check-authentication', verifyToken, (req, res) => {
-  // If the token is valid, send the authenticated user data
+
   res.json({ user: req.user });
 });
 
@@ -346,17 +311,16 @@ app.get('/api/protected', verifyToken, (req, res) => {
 });
 
 
+// Save drawing data in the database
 app.post('/api/save-drawing-points', verifyToken, async (req, res) => {
   console.log("saving trigger");
-  
-  // Log the request object
   console.log("Request object:", req.body);
 
   try {
     const userId = req.user.userId;
     const { all } = req.body;
 
-    // Save drawing data in the database
+
     const savedDrawing = await db('drawings')
       .insert({
         user_id: userId,
@@ -372,11 +336,12 @@ app.post('/api/save-drawing-points', verifyToken, async (req, res) => {
   }
 });
 
+  // Fetch user drawings from the database
 app.get('/api/drawings/user', verifyToken, async (req, res) => {
   try {
     const userId = req.user.userId;
     const userEmail = req.user.email;
-    // Fetch user drawings from the database
+  
     const userDrawings = await db('drawings')
       .select('*')
       .where({ user_id: userId });
@@ -397,4 +362,29 @@ app.get('/api/drawings/user', verifyToken, async (req, res) => {
   }
 });
 
+// Check if the drawing belongs to the authenticated user and delete it
+app.delete('/api/drawings/:drawingId', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const drawingId = req.params.drawingId;
 
+  
+    const drawingToDelete = await db('drawings')
+      .select('*')
+      .where({ id: drawingId, user_id: userId })
+      .first();
+
+    if (!drawingToDelete) {
+      return res.status(404).json({ error: 'Drawing not found or unauthorized to delete' });
+    }
+
+  
+    await db('drawings').where({ id: drawingId }).del();
+
+    console.log('Drawing deleted successfully:', drawingToDelete);
+    res.json({ message: 'Drawing deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting drawing:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
