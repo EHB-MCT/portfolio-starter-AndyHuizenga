@@ -1,8 +1,8 @@
 # Phone App
 
-This project is a school assignment for the DEV 5 class. It is an app that saves the name and brand of phones for people. The database consists of two tables: `phones` and `phones_brands`.
+This project is a school assignment for the DEV 5 class. 
 
-nuttig: 
+
 
 ## Getting Started
 
@@ -19,63 +19,83 @@ Make sure you have Docker and Docker Compose installed.
 
 This will start the development server and the associated database.
 
-# Database Setup
-The database consists of two tables:
+# Database Setup (4 tables)
 
-1. Phones Brands Table (phones_brands):
+The database consists of four tables: `phones`, `phones_brands`, `users`, and `drawings`. Below is a simplified view of the tables:
 
-CREATE TABLE phones_brands (
-  id SERIAL PRIMARY KEY,
-  brand_name VARCHAR(255) NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-);
-Phones Table (phones):
+## Phones Brands Table (phones_brands):
 
-2. Phone names 
+- `id` (Primary Key)
+- `brand_name` (Not Nullable)
+- `created_at`, `updated_at`
 
-CREATE TABLE phones (
-  id SERIAL PRIMARY KEY,
-  phone_model VARCHAR(255) NOT NULL,
-  brand_id INTEGER,
-  FOREIGN KEY (brand_id) REFERENCES phones_brands(id),
-  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-);
+## Phones Table (phones):
 
-The app will be accessible at http://localhost:3000.
+- `id` (Primary Key)
+- `phone_model` (Not Nullable)
+- `brand_id` (Foreign Key referencing `phones_brands.id`)
+- `created_at`, `updated_at`
+
+## Users Table:
+
+- `id` (Primary Key)
+- `email` (Unique, Not Nullable)
+- `password` (Not Nullable)
+
+## Drawings Table:
+
+- `id` (Primary Key)
+- `user_id` (Foreign Key referencing `users.id`, onDelete CASCADE)
+- `all` (Not Nullable - JSON format)
+- `created_at`
+
+The app will be accessible at http://localhost:3001.
 
 # Endpoints
 
-GET /api/phones: Get a list of all phones.
-GET /api/phones/:id: Get details of a specific phone by ID.
-PUT /api/phones/:id: Update a phone's details by ID.
-POST /api/phones: Add a new phone to the database.
-DELETE /api/phones/:id: Delete a phone from the database by ID.
-GET /brands: Get a list of all phone brands.
+The app exposes the following endpoints:
 
+- **Phones:**
+  - `GET /api/phones`: Get a list of all phones.
+  - `GET /api/phones/:id`: Get details of a specific phone by ID.
+  - `PUT /api/phones/:id`: Update a phone's details by ID.
+  - `POST /api/phones`: Add a new phone to the database.
+  - `DELETE /api/phones/:id`: Delete a phone from the database by ID.
+  
+- **Phone Brands:**
+  - `GET /brands`: Get a list of all phone brands.
 
-# How to run a test 
+- **Users:**
+  - `POST /api/register`: Register a new user.
+  - `POST /api/login`: Login and obtain a JWT token.
+  - `GET /api/check-authentication`: Check user authentication with a valid token.
+  - `GET /api/protected`: Access a protected route with a valid token.
 
-npm test: Run tests.
-npm run test-watch: Run tests in watch mode.
-npm run start: Start the development server.
-npm run migrate: Run database migrations.
-npm run seed: Seed the database with initial data.
-Testing
+- **Drawings:**
+  - `POST /api/save-drawing-points`: Save drawing points associated with an authenticated user (requires a valid token).
+  - `GET /api/drawings/user`: Fetch drawings associated with the authenticated user (requires a valid token).
+  - `DELETE /api/drawings/:drawingId`: Delete a drawing associated with the authenticated user (requires a valid token).
 
-To run tests, use the following command:
-npm test
+# How to run a test
 
-# Help 
+Before running tests, it's essential to prepare the environment and set up the database:
+
+  - npm run migrate: Run database migrations.,
+  - npm run seed: Seed the database with initial data.,
+  - npm run prepare: npm run migrate && npm run seed && jest,
+
+- npm test: Run tests.,
+- npm run test-watch: Run tests in watch mode.,
+- npm run start: Start the development server.,
+- npm run ci: npm run prepare && jest --detectOpenHandles --coverage --forceExit
+
+# Help
 
 Feel free to reach out to andy.huizenga@student.ehb.be if you need any help.
 
 # Author
-
 Andy Huizenga
 
 # License
-
 This project is licensed under the ISC License - see the LICENSE file for details.
 
