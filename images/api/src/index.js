@@ -12,7 +12,7 @@ const { log } = require('console');
 const app = express();
 const server = http.createServer(app);
 const port = process.env.PORT || 3001;
-const { startOscServer, createUdpPort, isType1Message, extractOscData, logReceivedTouchCoordinates, emitOscDataUpdate } = require('./helpers/OSCdataFormater');
+const { startOscServer, createUdpPort, isType1Message, extractOscData, logReceivedTouchCoordinates, emitOscDataUpdate } = require('./helpers/OSCdataformater');
 const { generateToken, verifyToken } = require('./helpers/UserCheck');
 const db = knex(knexfile.development);
 
