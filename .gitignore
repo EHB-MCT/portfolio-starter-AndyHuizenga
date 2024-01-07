@@ -41,3 +41,17 @@ docker-compose.*.yml
 # Persistent data stored in volumes
 /data/
 /logs/
+
+# Exclude coverage reports
+images/api/coverage/
+coverage-final.json
+Icov.info
+
+# Exclude generated files
+clover.xml
+prettify.css
+prettify.js
+sort-arrow-sprite.png
+sorter.js
+
+
