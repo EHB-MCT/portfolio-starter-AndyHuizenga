@@ -8,6 +8,7 @@ import './App.css';
 import PhoneCatalog from './PhoneCatalog';
 import Login from './Login';
 import CreateUser from './CreateUser';
+import MyArt from './MyArt';
 
 
 
@@ -46,6 +47,7 @@ function App() {
                   <Link className="nav-link" to="/Login">Login</Link>
                 </li>
 
+
               </ul>
           
             </div>
@@ -59,6 +61,7 @@ function App() {
           <Route path="/test" element={<PhoneCatalog />} />
           <Route path="/login" element={<Login />} />
           <Route path="/createUser" element={<CreateUser />} />
+          <Route path="/my-art" element={<MyArt />} />
         </Routes>
       </div>
     </Router>
