@@ -72,7 +72,8 @@ function OSCDataDisplay() {
       try {
         if (!token) {
           // Token is not present, handle it gracefully (redirect or show a message)
-          navigate('/login');  // Redirect to login page or handle it as needed
+          navigate('/login');
+          alert('You need to login to be able to save your art!');  // Redirect to login page or handle it as needed
           return;
         }
   
@@ -172,26 +173,28 @@ function OSCDataDisplay() {
 
   return (
     <div>
-       <UserCard userEmail={currentUserEmail} />
+      <UserCard userEmail={currentUserEmail} />
       <h1>Live OSC Data Painting</h1>
-
-      <div className="painting-canvas-container">
-        <canvas ref={canvasRef} width={4985} height={4985} className="live-canvas"></canvas>
+      <p>If your osc app is well connected you will be able to draw with your phone!</p>
+      <div className="painting-container">
+        <div className="painting-canvas-container">
+          <canvas ref={canvasRef} width={4985} height={4985} className="live-canvas"></canvas>
+        </div>
+        <div className="buttons-container">
+        <button onClick={() => { saveDrawing(); }} className="btn btn-primary">
+            Save Drawing
+          </button>
+          <button onClick={() => { handleClearData(); alert('OSC Data cleared!'); }} className="btn btn-danger">
+            Clear OSC Data
+          </button>
+          <button onClick={goToMyArt} className="btn btn-success">
+            Go to My Art
+          </button>
+        </div>
       </div>
-
-        <button onClick={saveDrawing} className="btn btn-primary">
-        Save Drawing
-      </button>
-      <button onClick={handleClearData} className="btn btn-danger">
-        Clear OSC Data
-      </button>
-
-      <button onClick={goToMyArt} className="btn btn-success">
-        Go to My Art
-      </button>
     </div>
-    
   );
 }
+
 
 export default OSCDataDisplay;
