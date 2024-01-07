@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Include Bootstrap CSS
 import './PhoneCatalog.css';
 
-const ENDPOINT = 'http://localhost:8080'; // Update with your API server URL
+const ENDPOINT = 'http://localhost:3001'; // Update with your API server URL
 
 const PhoneCatalog = () => {
   const [phones, setPhones] = useState([]);

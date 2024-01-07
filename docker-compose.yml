@@ -5,7 +5,7 @@ services:
     build:
       context: ./images/api
     ports:
-      - "8080:3000"
+      - "3001:3001"
       - "6001:6001/udp" 
     env_file:
       - .env
@@ -54,7 +54,7 @@ services:
     build:
       context: ./images/my-react-app 
     ports:
-      - "3001:3001"  
+      - "3000:3000"  
     volumes:
       - ./frontend/my-react-app:/usr/src/app  
     depends_on:
