@@ -1,6 +1,6 @@
-// MyArt.js
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import UserCard from './UserCard'; 
 
 const ENDPOINT = 'http://localhost:3001'; // Update with your server URL
 
@@ -11,6 +11,7 @@ function MyArt() {
   const [userEmail, setUserEmail] = useState('');
   const [currentColor, setCurrentColor] = useState('red');
   const allColors = ["red", "blue", "yellow", "orange"];
+
   
 
 
@@ -41,17 +42,29 @@ function MyArt() {
                 Authorization: token,
               },
             });
-
             if (fetchDrawingsResponse.ok) {
-              const drawings = await fetchDrawingsResponse.json();
-              setUserDrawings(drawings);
-              drawSavedDrawingOnCanvas(drawings);
-              setUserEmail(authenticatedUser.email);
-            } else {
-              const data = await fetchDrawingsResponse.json();
-              console.error('Error fetching drawings:', data.error);
-              alert('Error fetching drawings. Please try again.');
-            }
+                const drawings = await fetchDrawingsResponse.json();
+              
+                // Check if the array is not empty before extracting email from the first object
+                if (drawings.length > 0) {
+                  setUserDrawings(drawings);
+                  drawSavedDrawingOnCanvas(drawings);
+              
+                  // Use the email from the first object in the array
+                  const firstDrawing = drawings[0];
+                  setUserEmail(firstDrawing.email);
+              
+                  console.log("Drawing email: " + firstDrawing.email);
+                  console.log("User email being shown: " + userEmail);
+                } else {
+                  console.error('Empty array of drawings');
+                  alert('No drawings found for the user.');
+                }
+              } else {
+                const data = await fetchDrawingsResponse.json();
+                console.error('Error fetching drawings:', data.error);
+                alert('Error fetching drawings. Please try again.');
+              }
           } else {
             // Handle the case where user authentication fails
             console.error('User authentication failed');
@@ -117,7 +130,13 @@ function MyArt() {
     handleShowButtonClick(drawing)
   };
   
-
+  const handleLogout = () => {
+    // Clear token from localStorage
+    localStorage.removeItem('token');
+    
+    // Redirect to the login page
+    navigate('/login');
+  };
 
   
 
@@ -126,6 +145,7 @@ function MyArt() {
       <h1 className="mt-4 mb-4">My Art</h1>
       <div className="row">
         <div className="col-md-6 mb-4 mt-4">
+        <UserCard userEmail={userEmail} onLogout={handleLogout} />
           {userDrawings.map((drawing) => (
             <div key={drawing.id} className="card mb-4">
               <div className="card-body">

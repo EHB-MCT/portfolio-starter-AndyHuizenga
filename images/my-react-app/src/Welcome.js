@@ -1,6 +1,7 @@
 import React from 'react';
-import { Container, Card, Row, Col } from 'react-bootstrap';
+import { Container, Card, Col, Row } from 'react-bootstrap';
 import './Welcome.css';
+import { Link } from 'react-router-dom';
 
 const Welcome = () => (
   <Container>
@@ -20,10 +21,10 @@ const Welcome = () => (
     </Col>
 
     {/* Steps Cards */}
-    <Row>
+    <Row className="mb-2 mt-4">
       {[...Array(6).keys()].map((stepNumber) => (
-        <Col key={stepNumber} md={6} className="mb-2 mt-4">
-          <Card className="step-card">
+        <Col key={stepNumber} md={4}>
+          <Card className="step-card mb-4">
             <Card.Body>
               <h5>Step {stepNumber + 1}</h5>
               <StepContent stepNumber={stepNumber} />
@@ -32,7 +33,15 @@ const Welcome = () => (
         </Col>
       ))}
     </Row>
+
+    <div className="text-center mt-4">
+      <Link to="/login" className="btn btn-purple">
+       Get started
+      </Link>
+    </div>
   </Container>
+
+  
 );
 
 const StepContent = ({ stepNumber }) => {
@@ -41,11 +50,11 @@ const StepContent = ({ stepNumber }) => {
   switch (stepNumber) {
     case 0:
       return (
-        <p style={smallTextStyle} className="text-muted">Navigate to the README file of the project.</p>
+        <p style={smallTextStyle} className="text-muted">Navigate to the README file of the project. Check if everything is running correctly</p>
       );
     case 1:
       return (
-        <p style={smallTextStyle} className="text-muted">Create an account to begin your artistic journey.</p>
+        <p style={smallTextStyle} className="text-muted">Navigate to the login page and create an account to begin your artistic journey.</p>
       );
     case 2:
       return (
@@ -57,7 +66,7 @@ const StepContent = ({ stepNumber }) => {
       );
     case 4:
       return (
-        <p style={smallTextStyle} className="text-muted">Open Unipad and create a new OSC data stream with the required information (Host: see PC settings, Port: 6001, Protocol: OSC).</p>
+        <p style={smallTextStyle} className="text-muted">New unipad OSC data stream with the required information (Host: see PC settings, Port: 6001, Protocol: OSC).</p>
       );
     case 5:
       return (
@@ -66,6 +75,8 @@ const StepContent = ({ stepNumber }) => {
     default:
       return null;
   }
+
+
 };
 
 export default Welcome;

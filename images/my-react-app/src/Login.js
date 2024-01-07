@@ -46,7 +46,7 @@ const Login = () => {
     <div className="container mt-5">
       <div className="row justify-content-center">
         <div className="col-lg-6">
-          <h2>Login</h2>
+          <h2>LOG INTO YOUR ACCOUNT</h2>
           <form>
             <div className="mb-3 mt-5">
               <label htmlFor="email" className="form-label" style={{ float: 'left' }}>Email:</label>
